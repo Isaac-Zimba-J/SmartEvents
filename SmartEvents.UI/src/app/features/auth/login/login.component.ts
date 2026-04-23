@@ -2,18 +2,23 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { LucideAngularModule, Eye, EyeOff } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule],
   templateUrl: './login.component.html'
 })
 export class LoginComponent {
   form: FormGroup;
   loading = false;
   error = '';
+  showPassword = false;
+
+  readonly Eye = Eye;
+  readonly EyeOff = EyeOff;
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
     this.form = this.fb.group({

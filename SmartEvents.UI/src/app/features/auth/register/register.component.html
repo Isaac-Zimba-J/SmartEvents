@@ -1,43 +1,68 @@
 <div class="auth-wrapper">
   <div class="auth-card">
-    <h1>SmartEvents</h1>
-    <h2>Create Account</h2>
+    <div class="auth-logo">
+      <lucide-icon name="Calendar" [size]="28" class="auth-logo-icon" />
+      <span>SmartEvents</span>
+    </div>
+    <h2>Create an account</h2>
+    <p class="auth-sub">Join SmartEvents today</p>
 
     <form [formGroup]="form" (ngSubmit)="submit()">
-      <div class="field">
-        <label>First Name</label>
-        <input type="text" formControlName="firstName" placeholder="John" />
+      <div class="field-row">
+        <div class="field">
+          <label>First Name</label>
+          <input type="text" formControlName="firstName" placeholder="John" />
+        </div>
+        <div class="field">
+          <label>Last Name</label>
+          <input type="text" formControlName="lastName" placeholder="Doe" />
+        </div>
       </div>
 
       <div class="field">
-        <label>Last Name</label>
-        <input type="text" formControlName="lastName" placeholder="Doe" />
-      </div>
-
-      <div class="field">
-        <label>Email</label>
-        <input type="email" formControlName="email" placeholder="you@example.com" />
+        <label>Email address</label>
+        <div class="input-wrap">
+          <lucide-icon name="Mail" [size]="16" class="input-icon" />
+          <input type="email" formControlName="email" placeholder="you@example.com" class="has-icon" />
+        </div>
       </div>
 
       <div class="field">
         <label>Password</label>
-        <input type="password" formControlName="password" placeholder="Min 8 characters" />
+        <div class="input-wrap">
+          <lucide-icon name="Shield" [size]="16" class="input-icon" />
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Min 8 characters"
+            class="has-icon has-icon-right"
+          />
+          <button type="button" class="eye-btn" (click)="showPassword = !showPassword" tabindex="-1">
+            <lucide-icon [img]="showPassword ? EyeOff : Eye" [size]="16" />
+          </button>
+        </div>
       </div>
 
       <div class="field">
-        <label>Phone (optional)</label>
-        <input type="tel" formControlName="phone" placeholder="+265 999 000 000" />
+        <label>Phone <span class="optional">(optional)</span></label>
+        <div class="input-wrap">
+          <lucide-icon name="Phone" [size]="16" class="input-icon" />
+          <input type="tel" formControlName="phone" placeholder="+265 999 000 000" class="has-icon" />
+        </div>
       </div>
 
       @if (error) {
-        <p class="error">{{ error }}</p>
+        <div class="alert alert-error">
+          <lucide-icon name="AlertCircle" [size]="15" />
+          {{ error }}
+        </div>
       }
 
-      <button type="submit" [disabled]="loading">
-        {{ loading ? 'Creating account...' : 'Register' }}
+      <button type="submit" class="btn-primary btn-block" [disabled]="loading || form.invalid">
+        {{ loading ? 'Creating account...' : 'Create Account' }}
       </button>
     </form>
 
-    <p>Already have an account? <a routerLink="/auth/login">Sign in</a></p>
+    <p class="auth-footer">Already have an account? <a routerLink="/auth/login">Sign in</a></p>
   </div>
 </div>

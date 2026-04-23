@@ -138,7 +138,7 @@ public static class DbSeeder
             Capacity    = 5000,
             Type        = VenueType.Indoor,
             Amenities   = "Wi-Fi, AV Equipment, Catering, Parking, AC",
-            PricePerDay = 2500,
+            PricePerDay = 450000,
             CompanyId   = techCo.Id,
             IsAvailable = true
         };
@@ -156,7 +156,7 @@ public static class DbSeeder
             Capacity    = 800,
             Type        = VenueType.Indoor,
             Amenities   = "Wi-Fi, AV Equipment, Catering, Accommodation",
-            PricePerDay = 1200,
+            PricePerDay = 220000,
             CompanyId   = techCo.Id,
             IsAvailable = true
         };
@@ -172,7 +172,7 @@ public static class DbSeeder
             Capacity    = 10000,
             Type        = VenueType.Outdoor,
             Amenities   = "Stage, Sound System, Generator, Parking",
-            PricePerDay = 800,
+            PricePerDay = 28000000,
             CompanyId   = afrikaFest.Id,
             IsAvailable = true
         };
@@ -188,7 +188,7 @@ public static class DbSeeder
             Capacity    = 1500,
             Type        = VenueType.Outdoor,
             Amenities   = "Bar, Catering, Parking, PA System",
-            PricePerDay = 600,
+            PricePerDay = 110000,
             CompanyId   = afrikaFest.Id,
             IsAvailable = true
         };
@@ -204,7 +204,7 @@ public static class DbSeeder
             Capacity    = 50000,
             Type        = VenueType.Virtual,
             Amenities   = "Live Stream, Recording, Chat, Q&A",
-            PricePerDay = 150,
+            PricePerDay = 28000,
             CompanyId   = techCo.Id,
             IsAvailable = true
         };
@@ -227,7 +227,7 @@ public static class DbSeeder
             Timezone     = "Africa/Blantyre",
             MaxAttendees = 400,
             IsTicketed   = true,
-            TicketPrice  = 50,
+            TicketPrice  = 8500,
             WaitlistEnabled = true,
             IsPublic     = true,
             Tags         = "tech,software,cloud,ai",
@@ -270,7 +270,7 @@ public static class DbSeeder
             Timezone     = "Africa/Blantyre",
             MaxAttendees = 8000,
             IsTicketed   = true,
-            TicketPrice  = 25,
+            TicketPrice  = 4500,
             WaitlistEnabled = false,
             IsPublic     = true,
             Tags         = "music,afrobeats,culture,festival",
@@ -334,7 +334,7 @@ public static class DbSeeder
             Timezone     = "Africa/Blantyre",
             MaxAttendees = 1000,
             IsTicketed   = true,
-            TicketPrice  = 15,
+            TicketPrice  = 2500,
             WaitlistEnabled = true,
             IsPublic     = true,
             Tags         = "startups,innovation,entrepreneurs,exhibition",

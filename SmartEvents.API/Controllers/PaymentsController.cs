@@ -70,7 +70,7 @@ public class PaymentsController(SmartEventsDbContext db, IQrCodeService qrCodeSe
         {
             Id = Guid.NewGuid(),
             Amount = ev.TicketPrice,
-            Currency = "USD",
+            Currency = "ZMW",
             Status = PaymentStatus.Completed,
             Method = request.PaymentMethod,
             TransactionReference = $"MOCK-{Guid.NewGuid().ToString("N")[..12].ToUpper()}",

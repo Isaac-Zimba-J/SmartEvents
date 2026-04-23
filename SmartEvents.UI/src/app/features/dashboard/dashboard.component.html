@@ -1,71 +1,128 @@
 <div class="dashboard">
   <header class="dashboard-header">
-    <h1>SmartEvents</h1>
+    <div class="dashboard-brand">
+      <lucide-icon name="Calendar" [size]="22" class="brand-icon" />
+      <span>SmartEvents</span>
+    </div>
     <div class="user-info">
-      <span>{{ auth.currentUser()?.firstName }} {{ auth.currentUser()?.lastName }}</span>
-      <span class="role-badge">{{ auth.currentUser()?.role }}</span>
-      <a routerLink="/profile" class="btn-ghost-sm">Profile</a>
-      <button (click)="auth.logout()">Logout</button>
+      <div class="user-avatar">{{ (auth.currentUser()?.firstName ?? 'U')[0] }}{{ (auth.currentUser()?.lastName ?? '')[0] }}</div>
+      <div class="user-details">
+        <span class="user-name">{{ auth.currentUser()?.firstName }} {{ auth.currentUser()?.lastName }}</span>
+        <span class="role-badge">{{ auth.currentUser()?.role }}</span>
+      </div>
+      <a routerLink="/profile" class="btn-ghost-sm">
+        <lucide-icon name="User" [size]="14" /> Profile
+      </a>
+      <button class="btn-logout" (click)="auth.logout()">
+        <lucide-icon name="LogOut" [size]="14" /> Logout
+      </button>
     </div>
   </header>
 
   <nav class="dashboard-nav">
-    <a routerLink="/events">Events</a>
-    <a routerLink="/venues">Venues</a>
-    <a routerLink="/registrations/my">My Registrations</a>
+    <a routerLink="/events" routerLinkActive="active">
+      <lucide-icon name="Calendar" [size]="16" /> Events
+    </a>
+    <a routerLink="/venues" routerLinkActive="active">
+      <lucide-icon name="MapPin" [size]="16" /> Venues
+    </a>
+    <a routerLink="/registrations/my" routerLinkActive="active">
+      <lucide-icon name="Ticket" [size]="16" /> My Tickets
+    </a>
     @if (isOrganizer) {
-      <a routerLink="/organizer">Manage Events</a>
+      <a routerLink="/organizer" routerLinkActive="active">
+        <lucide-icon name="Briefcase" [size]="16" /> Manage
+      </a>
     }
     @if (auth.isAdmin()) {
-      <a routerLink="/companies">Companies</a>
-      <a routerLink="/analytics">Analytics</a>
+      <a routerLink="/companies" routerLinkActive="active">
+        <lucide-icon name="Building2" [size]="16" /> Companies
+      </a>
+      <a routerLink="/analytics" routerLinkActive="active">
+        <lucide-icon name="BarChart2" [size]="16" /> Analytics
+      </a>
     }
   </nav>
 
   <div class="dashboard-body">
-    <h2>Welcome back, {{ auth.currentUser()?.firstName }}!</h2>
+    <div class="welcome-section">
+      <h2>Welcome back, {{ auth.currentUser()?.firstName }}! 👋</h2>
+      <p class="welcome-sub">Here's what you can do today.</p>
+    </div>
 
     <div class="quick-links">
       <a routerLink="/events" class="quick-card">
+        <div class="quick-icon">
+          <lucide-icon name="Calendar" [size]="24" />
+        </div>
         <h3>Events</h3>
         <p>Browse and register for upcoming events</p>
+        <span class="quick-arrow"><lucide-icon name="ChevronRight" [size]="16" /></span>
       </a>
 
       <a routerLink="/venues" class="quick-card">
+        <div class="quick-icon">
+          <lucide-icon name="MapPin" [size]="24" />
+        </div>
         <h3>Venues</h3>
-        <p>Explore available venues for booking</p>
+        <p>Explore available event venues</p>
+        <span class="quick-arrow"><lucide-icon name="ChevronRight" [size]="16" /></span>
       </a>
 
       <a routerLink="/registrations/my" class="quick-card">
-        <h3>My Registrations</h3>
-        <p>View your event registrations and tickets</p>
+        <div class="quick-icon">
+          <lucide-icon name="Ticket" [size]="24" />
+        </div>
+        <h3>My Tickets</h3>
+        <p>View your registrations and QR codes</p>
+        <span class="quick-arrow"><lucide-icon name="ChevronRight" [size]="16" /></span>
       </a>
 
       @if (isOrganizer) {
         <a routerLink="/organizer" class="quick-card highlight">
+          <div class="quick-icon">
+            <lucide-icon name="Briefcase" [size]="24" />
+          </div>
           <h3>Manage Events</h3>
           <p>Publish events, view attendees, check-in</p>
+          <span class="quick-arrow"><lucide-icon name="ChevronRight" [size]="16" /></span>
         </a>
 
         <a routerLink="/events/create" class="quick-card highlight">
+          <div class="quick-icon">
+            <lucide-icon name="Plus" [size]="24" />
+          </div>
           <h3>Create Event</h3>
           <p>Set up a new event for your company</p>
+          <span class="quick-arrow"><lucide-icon name="ChevronRight" [size]="16" /></span>
         </a>
 
         <a routerLink="/venues/create" class="quick-card highlight">
+          <div class="quick-icon">
+            <lucide-icon name="MapPin" [size]="24" />
+          </div>
           <h3>Add Venue</h3>
-          <p>Register a new venue for events</p>
+          <p>Register a new venue</p>
+          <span class="quick-arrow"><lucide-icon name="ChevronRight" [size]="16" /></span>
         </a>
       }
 
       @if (auth.isAdmin()) {
         <a routerLink="/companies" class="quick-card highlight">
+          <div class="quick-icon">
+            <lucide-icon name="Building2" [size]="24" />
+          </div>
           <h3>Companies</h3>
           <p>Manage companies on the platform</p>
+          <span class="quick-arrow"><lucide-icon name="ChevronRight" [size]="16" /></span>
         </a>
         <a routerLink="/analytics" class="quick-card highlight">
+          <div class="quick-icon">
+            <lucide-icon name="BarChart2" [size]="24" />
+          </div>
           <h3>Analytics</h3>
-          <p>Overview stats, revenue, and event breakdown</p>
+          <p>Revenue, registrations, and event stats</p>
+          <span class="quick-arrow"><lucide-icon name="ChevronRight" [size]="16" /></span>
         </a>
       }
     </div>

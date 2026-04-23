@@ -6,7 +6,7 @@ public class Payment
 {
     public Guid Id { get; set; }
     public decimal Amount { get; set; }
-    public string Currency { get; set; } = "USD";
+    public string Currency { get; set; } = "ZMW";
     public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
     public PaymentMethod Method { get; set; }
     public string? TransactionReference { get; set; }
