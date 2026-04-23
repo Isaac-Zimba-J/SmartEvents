@@ -1,0 +1,156 @@
+@if (loading) {
+  <p>Loading event...</p>
+} @else if (event) {
+  <div class="event-detail">
+
+    @if (event.imageUrl) {
+      <img class="event-hero" [src]="event.imageUrl" [alt]="event.title" />
+    }
+
+    <div class="event-detail-body">
+      <div class="event-main">
+        <span class="badge">{{ event.category }}</span>
+        <span class="badge status-{{ event.status.toLowerCase() }}">{{ event.status }}</span>
+        <h1>{{ event.title }}</h1>
+
+        <div class="event-meta">
+          <p><strong>Date:</strong> {{ event.startDate | date:'full' }}</p>
+          <p><strong>End:</strong> {{ event.endDate | date:'full' }}</p>
+          @if (event.timezone) { <p><strong>Timezone:</strong> {{ event.timezone }}</p> }
+          <p><strong>Organizer:</strong> {{ event.organizerName }} — {{ event.companyName }}</p>
+          @if (event.venue) {
+            <p><strong>Venue:</strong> {{ event.venue.name }}, {{ event.venue.city }}, {{ event.venue.country }}</p>
+          }
+          <p><strong>Category:</strong> {{ event.category }}</p>
+          @if (event.tags) { <p><strong>Tags:</strong> {{ event.tags }}</p> }
+        </div>
+
+        @if (event.description) {
+          <div class="event-description">
+            <p>{{ event.description }}</p>
+          </div>
+        }
+
+        @if (isOrganizer) {
+          <div class="organizer-actions">
+            <a [routerLink]="['/events', event.slug, 'edit']" class="btn-secondary">Edit Event</a>
+          </div>
+        }
+      </div>
+
+      <div class="event-sidebar">
+        <div class="registration-card">
+          <p class="price">{{ event.isTicketed ? (event.ticketPrice | currency) : 'Free' }}</p>
+          <p class="spots">
+            @if (isFull && event.waitlistEnabled) {
+              Event is full — waitlist available
+            } @else if (isFull) {
+              Event is full
+            } @else {
+              {{ spotsLeft }} of {{ event.maxAttendees }} spots remaining
+            }
+          </p>
+
+          @if (successMessage) {
+            <div class="success-msg">{{ successMessage }}</div>
+          }
+
+          @if (error && !showCheckout) {
+            <div class="error">{{ error }}</div>
+          }
+
+          @if (!successMessage && !registration) {
+            @if (auth.isAuthenticated()) {
+
+              @if (!event.isTicketed) {
+                <!-- Free event: direct register / waitlist -->
+                <button
+                  class="btn-register"
+                  (click)="registerFree()"
+                  [disabled]="acting || (isFull && !event.waitlistEnabled)"
+                >
+                  @if (acting) { Registering... }
+                  @else if (isFull && event.waitlistEnabled) { Join Waitlist }
+                  @else { Register Now }
+                </button>
+              } @else if (!showCheckout) {
+                <!-- Paid event: open checkout panel -->
+                <button
+                  class="btn-register"
+                  (click)="openCheckout()"
+                  [disabled]="isFull && !event.waitlistEnabled"
+                >
+                  Buy Ticket — {{ event.ticketPrice | currency }}
+                </button>
+              }
+
+              @if (showCheckout) {
+                <!-- Mock checkout panel -->
+                <div class="checkout-panel">
+                  <h3>Checkout</h3>
+                  <p class="checkout-amount">Total: <strong>{{ event.ticketPrice | currency }}</strong></p>
+
+                  <div class="field">
+                    <label>Payment Method</label>
+                    <select [(ngModel)]="selectedPaymentMethod" name="paymentMethod">
+                      @for (pm of paymentMethods; track pm.value) {
+                        <option [value]="pm.value">{{ pm.label }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  @if (selectedPaymentMethod === 'Stripe') {
+                    <div class="mock-card-fields">
+                      <div class="field">
+                        <label>Card Number</label>
+                        <input type="text" placeholder="4242 4242 4242 4242" disabled />
+                      </div>
+                      <div class="field-row">
+                        <div class="field">
+                          <label>Expiry</label>
+                          <input type="text" placeholder="12/28" disabled />
+                        </div>
+                        <div class="field">
+                          <label>CVV</label>
+                          <input type="text" placeholder="123" disabled />
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  @if (selectedPaymentMethod === 'AirtelMoney' || selectedPaymentMethod === 'MTNMoMo') {
+                    <div class="field">
+                      <label>Mobile Number</label>
+                      <input type="tel" placeholder="+265 999 000 000" disabled />
+                    </div>
+                  }
+
+                  <p class="mock-notice">This is a mock payment — no real charge will be made.</p>
+
+                  @if (error) {
+                    <p class="error">{{ error }}</p>
+                  }
+
+                  <div class="checkout-actions">
+                    <button class="btn-secondary" (click)="cancelCheckout()" [disabled]="acting">Cancel</button>
+                    <button class="btn-primary" (click)="completePurchase()" [disabled]="acting">
+                      {{ acting ? 'Processing...' : 'Confirm Payment' }}
+                    </button>
+                  </div>
+                </div>
+              }
+
+            } @else {
+              <a routerLink="/auth/login" class="btn-register">Sign in to Register</a>
+            }
+          }
+        </div>
+      </div>
+    </div>
+
+    <a routerLink="/events">&larr; Back to Events</a>
+  </div>
+} @else {
+  <p>Event not found.</p>
+  <a routerLink="/events">Back to Events</a>
+}

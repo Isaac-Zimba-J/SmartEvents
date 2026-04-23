@@ -1,0 +1,74 @@
+<div class="events-page">
+  <div class="events-header">
+    <h1>Events</h1>
+
+    @if (isOrganizer) {
+      <a routerLink="/events/create" class="btn-primary">+ New Event</a>
+    }
+
+    <div class="filters">
+      <input
+        type="text"
+        [(ngModel)]="search"
+        (keyup.enter)="onSearch()"
+        placeholder="Search events..."
+      />
+
+      <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()">
+        <option value="">All Categories</option>
+        @for (cat of categories; track cat) {
+          <option [value]="cat">{{ cat }}</option>
+        }
+      </select>
+
+      <button (click)="onSearch()">Search</button>
+    </div>
+  </div>
+
+  @if (loading) {
+    <app-skeleton [count]="6" />
+  } @else if (result && result.items.length > 0) {
+    <div class="events-grid">
+      @for (event of result.items; track event.id) {
+        <div class="event-card">
+          @if (event.imageUrl) {
+            <img [src]="event.imageUrl" [alt]="event.title" />
+          }
+          <div class="event-card-body">
+            <span class="badge">{{ event.category }}</span>
+            <h3>
+              <a [routerLink]="['/events', event.slug]">{{ event.title }}</a>
+            </h3>
+            <p class="date">{{ event.startDate | date:'mediumDate' }} — {{ event.endDate | date:'mediumDate' }}</p>
+            @if (event.venue) {
+              <p class="location">{{ event.venue.city }}, {{ event.venue.country }}</p>
+            }
+            <p class="company">by {{ event.companyName }}</p>
+            <div class="event-card-footer">
+              <span class="price">{{ event.isTicketed ? (event.ticketPrice | currency) : 'Free' }}</span>
+              <span class="spots">
+                {{ event.maxAttendees - event.registeredCount }} spots left
+              </span>
+            </div>
+            <a [routerLink]="['/events', event.slug]" class="btn-register">View Details</a>
+            @if (isOrganizer) {
+              <a [routerLink]="['/events', event.slug, 'edit']" class="btn-secondary">Edit</a>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (result.totalPages > 1) {
+      <div class="pagination">
+        <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">&laquo; Prev</button>
+        @for (page of pages; track page) {
+          <button (click)="goToPage(page)" [class.active]="page === currentPage">{{ page }}</button>
+        }
+        <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === result.totalPages">Next &raquo;</button>
+      </div>
+    }
+  } @else {
+    <p class="empty">No events found.</p>
+  }
+</div>

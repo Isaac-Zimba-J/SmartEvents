@@ -1,0 +1,77 @@
+<div class="form-page">
+  <div class="form-header">
+    <a routerLink="/dashboard">&larr; Dashboard</a>
+    <h1>My Profile</h1>
+  </div>
+
+  @if (loading) {
+    <p>Loading profile...</p>
+  } @else if (profile) {
+    <div class="profile-layout">
+
+      <div class="profile-info-card">
+        @if (profile.avatarUrl) {
+          <img class="avatar" [src]="profile.avatarUrl" [alt]="profile.firstName" />
+        } @else {
+          <div class="avatar-placeholder">{{ profile.firstName[0] }}{{ profile.lastName[0] }}</div>
+        }
+        <h2>{{ profile.firstName }} {{ profile.lastName }}</h2>
+        <p class="role-badge">{{ profile.role }}</p>
+        <p class="email">{{ profile.email }}</p>
+
+        @if (profile.isEmailVerified) {
+          <span class="verified-badge">✓ Email Verified</span>
+        } @else {
+          <div class="unverified-notice">
+            <p>Email not verified</p>
+            <button
+              class="btn-secondary btn-sm"
+              (click)="requestVerification()"
+              [disabled]="requestingVerification"
+            >
+              {{ requestingVerification ? 'Sending...' : 'Send Verification Email' }}
+            </button>
+          </div>
+        }
+
+        @if (profile.companyName) {
+          <p class="company">{{ profile.companyName }}</p>
+        }
+        <p class="member-since">Member since {{ profile.createdAt | date:'mediumDate' }}</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="save()" class="form-card">
+        <div class="form-section">
+          <h2>Edit Profile</h2>
+
+          <div class="field-row">
+            <div class="field">
+              <label>First Name *</label>
+              <input type="text" formControlName="firstName" />
+            </div>
+            <div class="field">
+              <label>Last Name *</label>
+              <input type="text" formControlName="lastName" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Phone</label>
+            <input type="tel" formControlName="phone" placeholder="+265 999 000 000" />
+          </div>
+
+          <div class="field">
+            <label>Avatar URL</label>
+            <input type="url" formControlName="avatarUrl" placeholder="https://..." />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="saving || form.invalid">
+            {{ saving ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

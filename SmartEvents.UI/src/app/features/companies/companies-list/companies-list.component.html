@@ -1,0 +1,55 @@
+<div class="companies-page">
+  <div class="page-header">
+    <h1>Companies</h1>
+    @if (isSuperAdmin) {
+      <a routerLink="/companies/create" class="btn-primary">+ New Company</a>
+    }
+  </div>
+
+  @if (error) { <p class="error">{{ error }}</p> }
+
+  @if (loading) {
+    <p>Loading companies...</p>
+  } @else if (companies.length > 0) {
+    <div class="companies-grid">
+      @for (company of companies; track company.id) {
+        <div class="company-card">
+          @if (company.logoUrl) {
+            <img class="company-logo" [src]="company.logoUrl" [alt]="company.name" />
+          }
+          <div class="company-card-body">
+            <h3>{{ company.name }}</h3>
+            @if (company.description) {
+              <p class="description">{{ company.description }}</p>
+            }
+            <div class="company-meta">
+              @if (company.email) { <p>{{ company.email }}</p> }
+              @if (company.phone) { <p>{{ company.phone }}</p> }
+              @if (company.website) {
+                <p><a [href]="company.website" target="_blank">{{ company.website }}</a></p>
+              }
+              @if (company.address) { <p>{{ company.address }}</p> }
+            </div>
+          </div>
+          @if (isSuperAdmin) {
+            <div class="company-actions">
+              <a [routerLink]="['/companies', company.id, 'edit']" class="btn-secondary">Edit</a>
+              <button
+                class="btn-danger"
+                (click)="delete(company.id)"
+                [disabled]="deleting === company.id"
+              >
+                {{ deleting === company.id ? 'Deactivating...' : 'Deactivate' }}
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="empty">No companies found.</p>
+    @if (isSuperAdmin) {
+      <a routerLink="/companies/create" class="btn-primary">Create the first company</a>
+    }
+  }
+</div>

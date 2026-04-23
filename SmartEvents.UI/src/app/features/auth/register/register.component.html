@@ -1,0 +1,43 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <h1>SmartEvents</h1>
+    <h2>Create Account</h2>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="field">
+        <label>First Name</label>
+        <input type="text" formControlName="firstName" placeholder="John" />
+      </div>
+
+      <div class="field">
+        <label>Last Name</label>
+        <input type="text" formControlName="lastName" placeholder="Doe" />
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" formControlName="email" placeholder="you@example.com" />
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input type="password" formControlName="password" placeholder="Min 8 characters" />
+      </div>
+
+      <div class="field">
+        <label>Phone (optional)</label>
+        <input type="tel" formControlName="phone" placeholder="+265 999 000 000" />
+      </div>
+
+      @if (error) {
+        <p class="error">{{ error }}</p>
+      }
+
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Creating account...' : 'Register' }}
+      </button>
+    </form>
+
+    <p>Already have an account? <a routerLink="/auth/login">Sign in</a></p>
+  </div>
+</div>

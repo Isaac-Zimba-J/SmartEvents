@@ -1,0 +1,66 @@
+<div class="my-registrations-page">
+  <h1>My Registrations</h1>
+
+  @if (loading) {
+    <p>Loading your registrations...</p>
+  } @else if (registrations.length > 0) {
+    <div class="registrations-list">
+      @for (reg of registrations; track reg.id) {
+        <div class="registration-card status-{{ reg.status.toLowerCase() }}">
+          <div class="reg-info">
+            <h3>{{ reg.eventTitle }}</h3>
+            <span class="badge badge-{{ reg.status.toLowerCase() }}">{{ reg.status }}</span>
+
+            @if (reg.status === 'Waitlisted') {
+              <p class="waitlist">Waitlist position: #{{ reg.waitlistPosition }}</p>
+            }
+
+            @if (reg.ticket) {
+              <div class="ticket-info">
+                <p><strong>Ticket:</strong> {{ reg.ticket.ticketNumber }}</p>
+                @if (reg.ticket.isUsed) {
+                  <span class="used-badge">Used — checked in</span>
+                }
+
+                <button class="btn-qr" (click)="toggleQr(reg.id)">
+                  {{ expandedQr === reg.id ? 'Hide QR Code' : 'Show QR Code' }}
+                </button>
+
+                @if (expandedQr === reg.id) {
+                  <div class="qr-block">
+                    <img
+                      [src]="qrSrc(reg.ticket.qrCode)"
+                      alt="QR Code for {{ reg.ticket.ticketNumber }}"
+                      class="qr-image"
+                    />
+                    <p class="qr-label">{{ reg.ticket.ticketNumber }}</p>
+                  </div>
+                }
+              </div>
+            }
+
+            <p class="reg-date">Registered: {{ reg.registeredAt | date:'mediumDate' }}</p>
+            @if (reg.checkedInAt) {
+              <p class="checkin-date">Checked in: {{ reg.checkedInAt | date:'medium' }}</p>
+            }
+          </div>
+
+          <div class="reg-actions">
+            @if (canCancel(reg)) {
+              <button
+                class="btn-cancel"
+                (click)="cancel(reg.id)"
+                [disabled]="cancelling === reg.id"
+              >
+                {{ cancelling === reg.id ? 'Cancelling...' : 'Cancel' }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="empty">You haven't registered for any events yet.</p>
+    <a routerLink="/events" class="btn-primary">Browse Events</a>
+  }
+</div>

@@ -1,0 +1,45 @@
+<div class="attendees-page">
+  <div class="page-header">
+    <a routerLink="/organizer">&larr; Organizer Dashboard</a>
+    <h1>Attendees</h1>
+    <a routerLink="/registrations/checkin" class="btn-secondary">Check-In Scanner</a>
+  </div>
+
+  @if (loading) {
+    <p>Loading attendees...</p>
+  } @else {
+    <div class="attendee-stats">
+      <div class="stat-pill confirmed">{{ confirmed.length }} Confirmed</div>
+      <div class="stat-pill checkedin">{{ checkedIn.length }} Checked In</div>
+      <div class="stat-pill waitlisted">{{ waitlisted.length }} Waitlisted</div>
+      <div class="stat-pill cancelled">{{ cancelled.length }} Cancelled</div>
+    </div>
+
+    @if (registrations.length === 0) {
+      <p class="empty">No registrations yet.</p>
+    } @else {
+      <table class="attendees-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Ticket</th>
+            <th>Registered</th>
+            <th>Checked In</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (reg of registrations; track reg.id) {
+            <tr class="row-{{ reg.status.toLowerCase() }}">
+              <td>{{ reg.userName }}</td>
+              <td><span class="badge badge-{{ reg.status.toLowerCase() }}">{{ reg.status }}</span></td>
+              <td>{{ reg.ticket?.ticketNumber ?? '—' }}</td>
+              <td>{{ reg.registeredAt | date:'mediumDate' }}</td>
+              <td>{{ reg.checkedInAt ? (reg.checkedInAt | date:'medium') : '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+</div>

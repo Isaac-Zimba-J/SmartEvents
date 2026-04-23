@@ -1,0 +1,104 @@
+<div class="organizer-page">
+  <div class="page-header">
+    <h1>Organizer Dashboard</h1>
+    <div class="header-actions">
+      <a routerLink="/registrations/checkin" class="btn-secondary">Check-In Scanner</a>
+      <a routerLink="/events/create" class="btn-primary">+ New Event</a>
+    </div>
+  </div>
+
+  @if (loading) {
+    <p>Loading your events...</p>
+  } @else if (events.length === 0) {
+    <div class="empty-state">
+      <p>You haven't created any events yet.</p>
+      <a routerLink="/events/create" class="btn-primary">Create Your First Event</a>
+    </div>
+  } @else {
+
+    @if (publishedEvents.length > 0) {
+      <section class="event-section">
+        <h2>Live Events ({{ publishedEvents.length }})</h2>
+        <div class="organizer-events-grid">
+          @for (event of publishedEvents; track event.id) {
+            <ng-container *ngTemplateOutlet="eventCard; context: { $implicit: event }"></ng-container>
+          }
+        </div>
+      </section>
+    }
+
+    @if (draftEvents.length > 0) {
+      <section class="event-section">
+        <h2>Drafts ({{ draftEvents.length }})</h2>
+        <div class="organizer-events-grid">
+          @for (event of draftEvents; track event.id) {
+            <ng-container *ngTemplateOutlet="eventCard; context: { $implicit: event }"></ng-container>
+          }
+        </div>
+      </section>
+    }
+
+    @if (otherEvents.length > 0) {
+      <section class="event-section">
+        <h2>Past / Cancelled ({{ otherEvents.length }})</h2>
+        <div class="organizer-events-grid">
+          @for (event of otherEvents; track event.id) {
+            <ng-container *ngTemplateOutlet="eventCard; context: { $implicit: event }"></ng-container>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>
+
+<ng-template #eventCard let-event>
+  <div class="organizer-event-card status-{{ event.status.toLowerCase() }}">
+    <div class="oec-header">
+      <span class="badge badge-{{ event.status.toLowerCase() }}">{{ event.status }}</span>
+      <span class="badge">{{ event.category }}</span>
+    </div>
+
+    <h3>{{ event.title }}</h3>
+    <p class="oec-date">{{ event.startDate | date:'mediumDate' }}</p>
+
+    <div class="oec-stats">
+      <div class="stat">
+        <span class="stat-value">{{ event.registeredCount }}</span>
+        <span class="stat-label">Registered</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">{{ spotsLeft(event) }}</span>
+        <span class="stat-label">Spots left</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">{{ event.maxAttendees }}</span>
+        <span class="stat-label">Capacity</span>
+      </div>
+    </div>
+
+    <div class="oec-actions">
+      <a [routerLink]="['/events', event.slug]" class="btn-ghost">View</a>
+      <a [routerLink]="['/events', event.slug, 'edit']" class="btn-ghost">Edit</a>
+      <a [routerLink]="['/organizer/events', event.id, 'attendees']" class="btn-ghost">Attendees</a>
+
+      @if (event.status === 'Draft') {
+        <button
+          class="btn-primary btn-sm"
+          (click)="publish(event)"
+          [disabled]="acting === event.id"
+        >
+          {{ acting === event.id ? '...' : 'Publish' }}
+        </button>
+      }
+      @if (event.status === 'Published') {
+        <button
+          class="btn-danger btn-sm"
+          (click)="cancel(event)"
+          [disabled]="acting === event.id"
+        >
+          {{ acting === event.id ? '...' : 'Cancel' }}
+        </button>
+      }
+    </div>
+  </div>
+</ng-template>

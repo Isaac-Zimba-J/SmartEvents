@@ -1,0 +1,93 @@
+.analytics-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  h1, h2 { margin-bottom: 1.5rem; }
+  h2 { margin-top: 2.5rem; }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.skeleton-grid .stat-card {
+  height: 110px;
+  background: #e2e8f0;
+  border-radius: 12px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+
+.stat-label { font-size: .75rem; color: #64748b; text-transform: uppercase; letter-spacing: .05em; }
+.stat-value  { font-size: 2rem; font-weight: 700; color: #1e293b; }
+.stat-sub    { font-size: .8rem; color: #94a3b8; }
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+
+  th, td {
+    padding: .75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: .875rem;
+  }
+
+  th { background: #f8fafc; font-weight: 600; color: #475569; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+}
+
+.badge {
+  padding: .2rem .6rem;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 600;
+  &--published  { background: #dcfce7; color: #166534; }
+  &--draft      { background: #fef9c3; color: #854d0e; }
+  &--cancelled  { background: #fee2e2; color: #991b1b; }
+  &--completed  { background: #dbeafe; color: #1e40af; }
+}
+
+.fill-bar {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-width: 120px;
+
+  &__inner {
+    height: 6px;
+    border-radius: 3px;
+    background: #6366f1;
+    flex: 0 0 auto;
+  }
+
+  span { font-size: .8rem; color: #64748b; }
+}
+
+.pulse { animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .45; }
+}
+
+.loading-text, .empty { color: #94a3b8; }

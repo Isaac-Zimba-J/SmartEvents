@@ -1,0 +1,73 @@
+<div class="dashboard">
+  <header class="dashboard-header">
+    <h1>SmartEvents</h1>
+    <div class="user-info">
+      <span>{{ auth.currentUser()?.firstName }} {{ auth.currentUser()?.lastName }}</span>
+      <span class="role-badge">{{ auth.currentUser()?.role }}</span>
+      <a routerLink="/profile" class="btn-ghost-sm">Profile</a>
+      <button (click)="auth.logout()">Logout</button>
+    </div>
+  </header>
+
+  <nav class="dashboard-nav">
+    <a routerLink="/events">Events</a>
+    <a routerLink="/venues">Venues</a>
+    <a routerLink="/registrations/my">My Registrations</a>
+    @if (isOrganizer) {
+      <a routerLink="/organizer">Manage Events</a>
+    }
+    @if (auth.isAdmin()) {
+      <a routerLink="/companies">Companies</a>
+      <a routerLink="/analytics">Analytics</a>
+    }
+  </nav>
+
+  <div class="dashboard-body">
+    <h2>Welcome back, {{ auth.currentUser()?.firstName }}!</h2>
+
+    <div class="quick-links">
+      <a routerLink="/events" class="quick-card">
+        <h3>Events</h3>
+        <p>Browse and register for upcoming events</p>
+      </a>
+
+      <a routerLink="/venues" class="quick-card">
+        <h3>Venues</h3>
+        <p>Explore available venues for booking</p>
+      </a>
+
+      <a routerLink="/registrations/my" class="quick-card">
+        <h3>My Registrations</h3>
+        <p>View your event registrations and tickets</p>
+      </a>
+
+      @if (isOrganizer) {
+        <a routerLink="/organizer" class="quick-card highlight">
+          <h3>Manage Events</h3>
+          <p>Publish events, view attendees, check-in</p>
+        </a>
+
+        <a routerLink="/events/create" class="quick-card highlight">
+          <h3>Create Event</h3>
+          <p>Set up a new event for your company</p>
+        </a>
+
+        <a routerLink="/venues/create" class="quick-card highlight">
+          <h3>Add Venue</h3>
+          <p>Register a new venue for events</p>
+        </a>
+      }
+
+      @if (auth.isAdmin()) {
+        <a routerLink="/companies" class="quick-card highlight">
+          <h3>Companies</h3>
+          <p>Manage companies on the platform</p>
+        </a>
+        <a routerLink="/analytics" class="quick-card highlight">
+          <h3>Analytics</h3>
+          <p>Overview stats, revenue, and event breakdown</p>
+        </a>
+      }
+    </div>
+  </div>
+</div>

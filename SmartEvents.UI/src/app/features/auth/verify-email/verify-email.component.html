@@ -1,0 +1,23 @@
+<div class="auth-wrapper">
+  <div class="auth-card verify-card">
+    <h1>SmartEvents</h1>
+    <h2>Email Verification</h2>
+
+    @if (loading) {
+      <p>Verifying your email address...</p>
+    } @else if (success) {
+      <div class="verify-success">
+        <div class="verify-icon success">✓</div>
+        <p>{{ message }}</p>
+        <a routerLink="/dashboard" class="btn-primary">Go to Dashboard</a>
+      </div>
+    } @else {
+      <div class="verify-error">
+        <div class="verify-icon error">✕</div>
+        <p>{{ message }}</p>
+        <a routerLink="/profile" class="btn-secondary">Request a new link</a>
+        <a routerLink="/dashboard" class="btn-ghost">Back to Dashboard</a>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,6 @@
+@SmartEventsAPI_HostAddress = http://localhost:5148
+
+GET {{SmartEventsAPI_HostAddress}}/api/auth/ping
+Accept: application/json
+
+###

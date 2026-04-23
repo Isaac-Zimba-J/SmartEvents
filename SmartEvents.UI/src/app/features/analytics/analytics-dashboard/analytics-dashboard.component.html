@@ -1,0 +1,81 @@
+<div class="analytics-page">
+  <h1>Analytics</h1>
+
+  @if (loadingOverview) {
+    <div class="stats-grid skeleton-grid">
+      @for (_ of [1,2,3,4]; track $index) {
+        <div class="stat-card pulse"></div>
+      }
+    </div>
+  } @else if (overview) {
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Total Events</span>
+        <span class="stat-value">{{ overview.totalEvents }}</span>
+        <span class="stat-sub">{{ overview.publishedEvents }} published</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Registrations</span>
+        <span class="stat-value">{{ overview.totalRegistrations }}</span>
+        <span class="stat-sub">{{ overview.totalCheckedIn }} checked in</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Revenue</span>
+        <span class="stat-value">{{ overview.totalRevenue | currency }}</span>
+      </div>
+      @if (overview.totalUsers > 0) {
+        <div class="stat-card">
+          <span class="stat-label">Users</span>
+          <span class="stat-value">{{ overview.totalUsers }}</span>
+          <span class="stat-sub">{{ overview.totalCompanies }} companies · {{ overview.totalVenues }} venues</span>
+        </div>
+      }
+    </div>
+  }
+
+  <h2>Event Breakdown</h2>
+
+  @if (loadingEvents) {
+    <p class="loading-text">Loading event stats...</p>
+  } @else if (eventStats.length === 0) {
+    <p class="empty">No events to show.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Status</th>
+            <th>Fill Rate</th>
+            <th>Confirmed</th>
+            <th>Checked In</th>
+            <th>Waitlisted</th>
+            <th>Cancelled</th>
+            <th>Revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (stat of eventStats; track stat.eventId) {
+            <tr>
+              <td>{{ stat.title }}</td>
+              <td>
+                <span class="badge badge--{{ stat.status | lowercase }}">{{ stat.status }}</span>
+              </td>
+              <td>
+                <div class="fill-bar">
+                  <div class="fill-bar__inner" [style.width.%]="stat.fillRate"></div>
+                  <span>{{ stat.fillRate }}%</span>
+                </div>
+              </td>
+              <td>{{ stat.confirmed }}</td>
+              <td>{{ stat.checkedIn }}</td>
+              <td>{{ stat.waitlisted }}</td>
+              <td>{{ stat.cancelled }}</td>
+              <td>{{ stat.revenue | currency }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

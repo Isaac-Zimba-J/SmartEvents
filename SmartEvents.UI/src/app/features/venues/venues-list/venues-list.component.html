@@ -1,0 +1,63 @@
+<div class="venues-page">
+  <div class="venues-header">
+    <h1>Venues</h1>
+
+    @if (isOrganizer) {
+      <a routerLink="/venues/create" class="btn-primary">+ New Venue</a>
+    }
+
+    <div class="filters">
+      <input type="text" [(ngModel)]="city" placeholder="City..." (keyup.enter)="load()" />
+      <input type="text" [(ngModel)]="country" placeholder="Country..." (keyup.enter)="load()" />
+
+      <select [(ngModel)]="selectedType" (change)="load()">
+        <option value="">All Types</option>
+        @for (type of types; track type) {
+          <option [value]="type">{{ type }}</option>
+        }
+      </select>
+
+      <button (click)="load()">Filter</button>
+    </div>
+  </div>
+
+  @if (loading) {
+    <app-skeleton [count]="6" />
+  } @else if (venues.length > 0) {
+    <div class="venues-grid">
+      @for (venue of venues; track venue.id) {
+        <div class="venue-card">
+          @if (venue.imageUrl) {
+            <img [src]="venue.imageUrl" [alt]="venue.name" />
+          }
+          <div class="venue-card-body">
+            <span class="badge">{{ venue.type }}</span>
+            <h3>{{ venue.name }}</h3>
+            <p class="location">{{ venue.city }}, {{ venue.country }}</p>
+            <p class="address">{{ venue.address }}</p>
+            <p class="capacity">Capacity: {{ venue.capacity | number }}</p>
+            @if (venue.pricePerDay) {
+              <p class="price">{{ venue.pricePerDay | currency }} / day</p>
+            } @else {
+              <p class="price">Price on request</p>
+            }
+            <p class="company">Listed by {{ venue.companyName }}</p>
+            @if (venue.amenities) {
+              <p class="amenities">{{ venue.amenities }}</p>
+            }
+          </div>
+          @if (isOrganizer) {
+            <div class="venue-actions">
+              <a [routerLink]="['/venues', venue.id, 'edit']" class="btn-secondary">Edit</a>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="empty">No venues found.</p>
+    @if (isOrganizer) {
+      <a routerLink="/venues/create" class="btn-primary">Add the first venue</a>
+    }
+  }
+</div>

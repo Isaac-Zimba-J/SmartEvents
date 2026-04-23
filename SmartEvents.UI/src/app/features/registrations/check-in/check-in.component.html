@@ -1,0 +1,55 @@
+<div class="checkin-page">
+  <div class="page-header">
+    <a routerLink="/organizer">&larr; Organizer Dashboard</a>
+    <h1>Event Check-In</h1>
+  </div>
+
+  <div class="checkin-card">
+    <p class="checkin-hint">Enter or scan a ticket number to check in an attendee.</p>
+
+    <form (ngSubmit)="submit()" class="checkin-form">
+      <input
+        type="text"
+        [(ngModel)]="ticketNumber"
+        name="ticketNumber"
+        placeholder="SE-20260422-XXXXXXXX"
+        class="ticket-input"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="characters"
+        [disabled]="loading"
+      />
+      <button type="submit" class="btn-primary" [disabled]="loading || !ticketNumber.trim()">
+        {{ loading ? 'Checking in...' : 'Check In' }}
+      </button>
+    </form>
+
+    @if (lastResult) {
+      <div class="checkin-result" [class.success]="lastResult.success" [class.failure]="!lastResult.success">
+        <span class="result-icon">{{ lastResult.success ? '✓' : '✕' }}</span>
+        <div>
+          <p class="result-ticket">{{ lastResult.ticketNumber }}</p>
+          <p class="result-message">{{ lastResult.message }}</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (history.length > 0) {
+    <div class="checkin-history">
+      <div class="history-header">
+        <h2>Session History ({{ history.length }})</h2>
+        <button class="btn-secondary" (click)="clearHistory()">Clear</button>
+      </div>
+      <div class="history-list">
+        @for (entry of history; track $index) {
+          <div class="history-entry" [class.success]="entry.success" [class.failure]="!entry.success">
+            <span class="entry-icon">{{ entry.success ? '✓' : '✕' }}</span>
+            <span class="entry-ticket">{{ entry.ticketNumber }}</span>
+            <span class="entry-message">{{ entry.message }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
