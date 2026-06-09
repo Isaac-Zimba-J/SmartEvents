@@ -53,4 +53,11 @@ export class EventsService {
   delete(id: string) {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  getRecommended(excludeEventId: string) {
+    return this.http.get<EventSummary[]>(
+      `${this.apiUrl}/recommended`,
+      { params: new HttpParams().set('excludeEventId', excludeEventId) }
+    );
+  }
 }
