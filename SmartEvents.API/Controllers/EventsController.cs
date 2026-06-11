@@ -86,6 +86,46 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
         return Ok(events.Select(ToSummary));
     }
 
+    [HttpGet("recommended")]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<EventSummaryResponse>>> GetRecommended(
+        [FromQuery] Guid? excludeEventId = null)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var categories = await db.Registrations
+            .Where(r => r.UserId == userId &&
+                        (r.Status == RegistrationStatus.Confirmed ||
+                         r.Status == RegistrationStatus.Waitlisted))
+            .Select(r => r.Event.Category)
+            .Distinct()
+            .ToListAsync();
+
+        if (categories.Count == 0)
+            return Ok(Array.Empty<EventSummaryResponse>());
+
+        var registeredEventIds = await db.Registrations
+            .Where(r => r.UserId == userId)
+            .Select(r => r.EventId)
+            .ToListAsync();
+
+        var events = await db.Events
+            .Include(e => e.Company)
+            .Include(e => e.Venue)
+            .Include(e => e.Organizer)
+            .Include(e => e.Registrations)
+            .Where(e => e.Status == EventStatus.Published
+                     && e.IsPublic
+                     && categories.Contains(e.Category)
+                     && !registeredEventIds.Contains(e.Id)
+                     && (excludeEventId == null || e.Id != excludeEventId.Value))
+            .OrderBy(e => e.StartDate)
+            .Take(4)
+            .ToListAsync();
+
+        return Ok(events.Select(ToSummary));
+    }
+
     [HttpPost]
     [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)},{nameof(UserRole.Organizer)}")]
     public async Task<ActionResult<EventSummaryResponse>> Create(CreateEventRequest request)
