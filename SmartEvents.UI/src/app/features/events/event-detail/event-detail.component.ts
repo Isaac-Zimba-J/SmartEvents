@@ -2,18 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { EventsService } from '../../../core/services/events.service';
 import { RegistrationsService } from '../../../core/services/registrations.service';
 import { PaymentsService } from '../../../core/services/payments.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { EventDetail } from '../../../core/models/event.models';
+import { EventDetail, EventSummary } from '../../../core/models/event.models';
 import { RegistrationResponse } from '../../../core/models/registration.models';
 import { PaymentMethod } from '../../../core/models/payment.models';
 
 @Component({
   selector: 'app-event-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, LucideAngularModule],
   templateUrl: './event-detail.component.html'
 })
 export class EventDetailComponent implements OnInit {
@@ -23,6 +24,7 @@ export class EventDetailComponent implements OnInit {
   registration: RegistrationResponse | null = null;
   error = '';
   successMessage = '';
+  recommendations: EventSummary[] = [];
 
   showCheckout = false;
   selectedPaymentMethod: PaymentMethod = 'Stripe';
@@ -44,7 +46,16 @@ export class EventDetailComponent implements OnInit {
   ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug')!;
     this.eventsService.getBySlug(slug).subscribe({
-      next: data => { this.event = data; this.loading = false; },
+      next: data => {
+        this.event = data;
+        this.loading = false;
+        if (this.auth.isAuthenticated()) {
+          this.eventsService.getRecommended(data.id).subscribe({
+            next: recs => { this.recommendations = recs; },
+            error: () => {}
+          });
+        }
+      },
       error: () => { this.loading = false; }
     });
   }
