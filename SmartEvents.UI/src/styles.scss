@@ -509,6 +509,38 @@ button:not([class]) {
 .checkout-actions { display: flex; gap: .75rem; button { flex: 1; } }
 .mock-card-fields { display: flex; flex-direction: column; gap: .5rem; }
 
+/* ─── Recommendations ────────────────────────────────────── */
+.recommendations-section {
+  margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border);
+}
+
+.recommendations-header {
+  display: flex; align-items: center; gap: .6rem; margin-bottom: 1.25rem;
+  h3 { margin: 0; }
+  .badge { font-size: .65rem; }
+}
+
+.recommendations-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem;
+}
+
+.rec-card {
+  display: flex; flex-direction: column; gap: .35rem;
+  padding: 1rem 1.1rem; border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border); background: var(--white);
+  box-shadow: var(--shadow-sm); color: var(--text);
+  transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
+
+  &:hover {
+    box-shadow: var(--shadow); border-color: var(--primary);
+    transform: translateY(-2px); color: var(--text);
+  }
+
+  .rec-title { font-size: .9rem; font-weight: 600; margin-top: .15rem; }
+  .rec-meta  { font-size: .75rem; color: var(--text-muted); }
+  .rec-price { font-size: .85rem; font-weight: 700; color: var(--primary); margin-top: auto; padding-top: .35rem; }
+}
+
 /* ─── My Registrations ───────────────────────────────────── */
 .my-registrations-page { padding: 2rem; max-width: 900px; margin: 0 auto; h1 { margin-bottom: 1.5rem; } }
 
@@ -839,4 +871,5 @@ button:not([class]) {
   .checkin-page, .companies-page, .analytics-page { padding: 1.25rem; }
   .field-row          { grid-template-columns: 1fr; }
   h1                  { font-size: 1.5rem; }
+  .recommendations-grid { grid-template-columns: 1fr; }
 }
