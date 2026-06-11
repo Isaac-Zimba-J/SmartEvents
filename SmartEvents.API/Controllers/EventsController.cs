@@ -55,37 +55,6 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
         ));
     }
 
-    [HttpGet("{slug}")]
-    [AllowAnonymous]
-    public async Task<ActionResult<EventDetailResponse>> GetBySlug(string slug)
-    {
-        var ev = await db.Events
-            .Include(e => e.Company)
-            .Include(e => e.Venue).ThenInclude(v => v!.Company)
-            .Include(e => e.Organizer)
-            .Include(e => e.Registrations)
-            .FirstOrDefaultAsync(e => e.Slug == slug);
-
-        if (ev is null) return NotFound();
-        return Ok(ToDetail(ev));
-    }
-
-    [HttpGet("company/{companyId:guid}")]
-    [Authorize]
-    public async Task<ActionResult<IEnumerable<EventSummaryResponse>>> GetByCompany(Guid companyId)
-    {
-        var events = await db.Events
-            .Include(e => e.Company)
-            .Include(e => e.Venue)
-            .Include(e => e.Organizer)
-            .Include(e => e.Registrations)
-            .Where(e => e.CompanyId == companyId)
-            .OrderByDescending(e => e.StartDate)
-            .ToListAsync();
-
-        return Ok(events.Select(ToSummary));
-    }
-
     [HttpGet("recommended")]
     [Authorize]
     public async Task<ActionResult<IEnumerable<EventSummaryResponse>>> GetRecommended(
@@ -121,6 +90,37 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
                      && (excludeEventId == null || e.Id != excludeEventId.Value))
             .OrderBy(e => e.StartDate)
             .Take(4)
+            .ToListAsync();
+
+        return Ok(events.Select(ToSummary));
+    }
+
+    [HttpGet("{slug}")]
+    [AllowAnonymous]
+    public async Task<ActionResult<EventDetailResponse>> GetBySlug(string slug)
+    {
+        var ev = await db.Events
+            .Include(e => e.Company)
+            .Include(e => e.Venue).ThenInclude(v => v!.Company)
+            .Include(e => e.Organizer)
+            .Include(e => e.Registrations)
+            .FirstOrDefaultAsync(e => e.Slug == slug);
+
+        if (ev is null) return NotFound();
+        return Ok(ToDetail(ev));
+    }
+
+    [HttpGet("company/{companyId:guid}")]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<EventSummaryResponse>>> GetByCompany(Guid companyId)
+    {
+        var events = await db.Events
+            .Include(e => e.Company)
+            .Include(e => e.Venue)
+            .Include(e => e.Organizer)
+            .Include(e => e.Registrations)
+            .Where(e => e.CompanyId == companyId)
+            .OrderByDescending(e => e.StartDate)
             .ToListAsync();
 
         return Ok(events.Select(ToSummary));
