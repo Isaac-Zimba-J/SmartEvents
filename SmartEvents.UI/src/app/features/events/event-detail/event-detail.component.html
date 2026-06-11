@@ -149,6 +149,26 @@
     </div>
 
     <a routerLink="/events">&larr; Back to Events</a>
+
+    @if (recommendations.length > 0) {
+      <div class="recommendations-section">
+        <div class="recommendations-header">
+          <lucide-angular name="star" [size]="18"></lucide-angular>
+          <h3>You might also like</h3>
+          <span class="badge">Based on your registrations</span>
+        </div>
+        <div class="recommendations-grid">
+          @for (rec of recommendations; track rec.id) {
+            <a [routerLink]="['/events', rec.slug]" class="rec-card">
+              <span class="badge">{{ rec.category }}</span>
+              <p class="rec-title">{{ rec.title }}</p>
+              <p class="rec-meta">{{ rec.startDate | date:'mediumDate' }} · {{ rec.companyName }}</p>
+              <p class="rec-price">{{ rec.isTicketed ? (rec.ticketPrice | currency:'ZMW':'symbol-narrow') : 'Free' }}</p>
+            </a>
+          }
+        </div>
+      </div>
+    }
   </div>
 } @else {
   <p>Event not found.</p>
