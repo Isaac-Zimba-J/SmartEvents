@@ -104,10 +104,9 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
         if (categories.Count == 0)
             return Ok(Array.Empty<EventSummaryResponse>());
 
-        var registeredEventIds = await db.Registrations
-            .Where(r => r.UserId == userId)
-            .Select(r => r.EventId)
-            .ToListAsync();
+        var registeredEventIds = db.Registrations
+            .Where(r => r.UserId == userId && r.Status != RegistrationStatus.Cancelled)
+            .Select(r => r.EventId);
 
         var events = await db.Events
             .Include(e => e.Company)
@@ -116,6 +115,7 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
             .Include(e => e.Registrations)
             .Where(e => e.Status == EventStatus.Published
                      && e.IsPublic
+                     && e.StartDate >= DateTime.UtcNow
                      && categories.Contains(e.Category)
                      && !registeredEventIds.Contains(e.Id)
                      && (excludeEventId == null || e.Id != excludeEventId.Value))
