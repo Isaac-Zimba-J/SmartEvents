@@ -8,7 +8,7 @@ public record CreateVenueBookingRequest(
     [Required] DateTime StartDate,
     [Required] DateTime EndDate,
     string? Notes,
-    PaymentMethod PaymentMethod
+    [Required] PaymentMethod PaymentMethod
 );
 
 public record VenueBookingResponse(
