@@ -1,0 +1,163 @@
+@if (loading) {
+  <div class="loading-state">Loading venue details...</div>
+} @else if (error) {
+  <div class="error-state">{{ error }}</div>
+} @else if (venue) {
+  <div class="venue-detail-page">
+    <div class="venue-detail-container">
+
+      <a routerLink="/venues" class="back-link">&#8592; Back to Venues</a>
+
+      <!-- Venue Info -->
+      <div class="venue-info">
+        @if (venue.imageUrl) {
+          <img class="venue-hero" [src]="venue.imageUrl" [alt]="venue.name" />
+        }
+
+        <div class="venue-header">
+          <h1>{{ venue.name }}</h1>
+          <div class="venue-tags">
+            <span class="badge">{{ venue.type }}</span>
+            <span class="badge">
+              <lucide-angular name="users" [size]="14"></lucide-angular>
+              Capacity: {{ venue.capacity | number }}
+            </span>
+            @if (venue.isAvailable) {
+              <span class="badge badge-success">Available</span>
+            } @else {
+              <span class="badge badge-danger">Unavailable</span>
+            }
+          </div>
+        </div>
+
+        <div class="venue-meta">
+          <p class="venue-location">
+            <lucide-angular name="map-pin" [size]="16"></lucide-angular>
+            {{ venue.address }}, {{ venue.city }}, {{ venue.country }}
+          </p>
+          <p class="venue-company">
+            <lucide-angular name="building-2" [size]="16"></lucide-angular>
+            {{ venue.companyName }}
+          </p>
+        </div>
+
+        @if (venue.description) {
+          <div class="venue-description">
+            <p>{{ venue.description }}</p>
+          </div>
+        }
+
+        @if (venue.amenities) {
+          <div class="venue-amenities">
+            <h3>Amenities</h3>
+            <p>{{ venue.amenities }}</p>
+          </div>
+        }
+
+        <div class="venue-price">
+          @if (venue.pricePerDay && venue.pricePerDay > 0) {
+            <span class="price-amount">
+              <lucide-angular name="dollar-sign" [size]="18"></lucide-angular>
+              K {{ venue.pricePerDay | number:'1.0-0' }} <span class="price-unit">/ day</span>
+            </span>
+          } @else {
+            <span class="price-contact">Contact for pricing</span>
+          }
+        </div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- Booking Section -->
+      <div class="booking-section">
+        <h2>Book This Venue</h2>
+
+        @if (isAuthenticated) {
+
+          @if (successMessage) {
+            <div class="success-msg">
+              <lucide-angular name="check-circle" [size]="18"></lucide-angular>
+              {{ successMessage }}
+            </div>
+          }
+
+          @if (bookingError) {
+            <div class="error-msg">{{ bookingError }}</div>
+          }
+
+          <div class="booking-form">
+            <div class="form-row">
+              <div class="field">
+                <label for="startDate">Start Date</label>
+                <input
+                  id="startDate"
+                  type="date"
+                  [(ngModel)]="startDate"
+                  (change)="onDatesChange()"
+                  [min]="today"
+                  name="startDate"
+                />
+              </div>
+              <div class="field">
+                <label for="endDate">End Date</label>
+                <input
+                  id="endDate"
+                  type="date"
+                  [(ngModel)]="endDate"
+                  (change)="onDatesChange()"
+                  [min]="startDate || today"
+                  name="endDate"
+                />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="notes">Notes (optional)</label>
+              <textarea
+                id="notes"
+                [(ngModel)]="notes"
+                name="notes"
+                placeholder="Any special requirements?"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div class="field">
+              <label for="paymentMethod">Payment Method</label>
+              <select id="paymentMethod" [(ngModel)]="selectedPaymentMethod" name="paymentMethod">
+                @for (method of paymentMethods; track method) {
+                  <option [value]="method">{{ method }}</option>
+                }
+              </select>
+            </div>
+
+            @if (venue.pricePerDay && venue.pricePerDay > 0 && startDate && endDate && startDate < endDate) {
+              <div class="booking-summary">
+                <lucide-angular name="calendar" [size]="16"></lucide-angular>
+                {{ totalDays }} day(s) &times; K {{ venue.pricePerDay | number:'1.0-0' }} =
+                <strong>K {{ totalAmount | number:'1.0-0' }}</strong>
+              </div>
+            }
+
+            <button
+              class="btn-primary book-btn"
+              (click)="book()"
+              [disabled]="bookingLoading || !startDate || !endDate"
+            >
+              {{ bookingLoading ? 'Booking...' : 'Book Venue' }}
+            </button>
+          </div>
+
+        } @else {
+          <div class="login-prompt">
+            <p>Please <a routerLink="/auth/login">log in</a> to book this venue.</p>
+          </div>
+        }
+      </div>
+
+    </div>
+  </div>
+} @else {
+  <p>Venue not found.</p>
+  <a routerLink="/venues">Back to Venues</a>
+}

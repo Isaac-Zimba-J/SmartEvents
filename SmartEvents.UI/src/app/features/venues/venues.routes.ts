@@ -15,5 +15,9 @@ export const VENUES_ROUTES: Routes = [
     path: ':id/edit',
     canActivate: [authGuard],
     loadComponent: () => import('./edit-venue/edit-venue.component').then(m => m.EditVenueComponent)
+  },
+  {
+    path: ':id',
+    loadComponent: () => import('./venue-detail/venue-detail.component').then(m => m.VenueDetailComponent)
   }
 ];
