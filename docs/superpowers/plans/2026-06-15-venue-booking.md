@@ -1,10 +1,10 @@
-# Venue Booking Implementation Plan
+# Venue Booking + Bug Fixes + Company Members Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a venue detail page with an inline booking form and a "My Venue Bookings" page, backed by a new `VenueBooking` entity and `VenueBookingsController`.
+**Goal:** Fix three bugs (sticky navbar, event recommendations, venue view-only), add full venue booking, and add company member management so CompanyAdmins can add Organizers and other members to their company.
 
-**Architecture:** New `VenueBooking` EF entity stores date-range bookings. A new `VenueBookingsController` handles create / list-mine / get / cancel. The Angular side gets a `VenueBookingsService`, a `VenueDetailComponent` at `/venues/:id`, and a `MyVenueBookingsComponent` at `/venues/my-bookings`. Payment follows the same mock pattern as event registrations — booking is confirmed immediately on submission.
+**Architecture:** New `VenueBooking` EF entity stores date-range bookings. A new `VenueBookingsController` handles create / list-mine / get / cancel. The Angular side gets a `VenueBookingsService`, a `VenueDetailComponent` at `/venues/:id`, and a `MyVenueBookingsComponent` at `/venues/my-bookings`. Payment follows the same mock pattern as event registrations — booking is confirmed immediately on submission. Company member management adds 4 endpoints to `CompaniesController` and a new `CompanyMembersComponent`.
 
 **Tech Stack:** ASP.NET Core .NET 10, EF Core 10 (PostgreSQL, code-first), Angular 18 (standalone components, `@if`/`@for` control flow, Signals), Lucide Angular, global SCSS (`styles.scss`).
 
@@ -14,7 +14,15 @@
 
 | File | Action |
 |---|---|
-| `SmartEvents.API/Domain/Enums/Enums.cs` | Modify — add `VenueBookingStatus` |
+| `SmartEvents.UI/src/styles.scss` | Modify — fix `.dashboard-nav` sticky positioning (Task 9) |
+| `SmartEvents.API/Infrastructure/Data/DbSeeder.cs` | Modify — seed 3 more events in overlapping categories (Task 10) |
+| `SmartEvents.API/Application/DTOs/CompanyDtos.cs` | Modify — add member DTOs (Task 11) |
+| `SmartEvents.API/Controllers/CompaniesController.cs` | Modify — add 4 member endpoints (Task 11) |
+| `SmartEvents.UI/src/app/core/services/company-members.service.ts` | Create (Task 12) |
+| `SmartEvents.UI/src/app/features/companies/company-members/company-members.component.ts` | Create (Task 12) |
+| `SmartEvents.UI/src/app/features/companies/company-members/company-members.component.html` | Create (Task 12) |
+| `SmartEvents.UI/src/app/features/companies/companies.routes.ts` | Modify — add members route (Task 12) |
+| `SmartEvents.API/Domain/Enums/Enums.cs` | Modify — add `VenueBookingStatus` (Task 1) |
 | `SmartEvents.API/Domain/Entities/VenueBooking.cs` | Create |
 | `SmartEvents.API/Infrastructure/Data/SmartEventsDbContext.cs` | Modify — `DbSet` + `OnModelCreating` config |
 | `SmartEvents.API/Infrastructure/Data/Migrations/` | Create — via `dotnet ef migrations add AddVenueBooking` |
@@ -1130,18 +1138,707 @@
   Open `CLAUDE.md` at the repo root. In the Change Log table, add:
 
   ```markdown
-  | 2026-06-15 | Added venue booking feature: VenueBooking entity, VenueBookingsController (POST/GET/DELETE), VenueDetailComponent with inline booking form, MyVenueBookingsComponent, venues.routes.ts updated, BookMarked icon registered. |
+  | 2026-06-15 | Fixed sticky navbar (dashboard-nav position:sticky). Fixed event recommendations by seeding 3 more events in overlapping categories. Added venue booking: VenueBooking entity, VenueBookingsController, VenueDetailComponent, MyVenueBookingsComponent. Added company member management: GET/POST/PUT/DELETE /api/companies/{id}/members, CompanyMembersComponent at /companies/:id/members. |
   ```
 
 - [ ] **Step 4: Final commit**
 
   ```bash
   git add CLAUDE.md
-  git commit -m "docs: update CLAUDE.md with venue booking feature"
+  git commit -m "docs: update CLAUDE.md with all 2026-06-15 changes"
   ```
 
 - [ ] **Step 5: Final git log**
 
   ```bash
-  git log --oneline -12
+  git log --oneline -16
+  ```
+
+---
+
+## Task 9: Fix sticky navbar
+
+**Files:**
+- Modify: `SmartEvents.UI/src/styles.scss`
+
+The `dashboard-nav` disappears when the user scrolls because it has no sticky positioning. The fix is two lines of CSS.
+
+- [ ] **Step 1: Add sticky positioning to .dashboard-nav**
+
+  In `styles.scss`, find the `.dashboard-nav` rule (around line 329). It currently starts with:
+
+  ```scss
+  .dashboard-nav {
+    background: var(--white); border-bottom: 1px solid var(--border);
+    padding: 0 1.75rem; display: flex; gap: .1rem; overflow-x: auto;
+  ```
+
+  Replace that opening with:
+
+  ```scss
+  .dashboard-nav {
+    background: var(--white); border-bottom: 1px solid var(--border);
+    padding: 0 1.75rem; display: flex; gap: .1rem; overflow-x: auto;
+    position: sticky; top: 0; z-index: 100;
+  ```
+
+- [ ] **Step 2: Build to verify no errors**
+
+  ```bash
+  cd SmartEvents.UI
+  npx ng build --configuration development 2>&1 | tail -10
+  ```
+
+  Expected: `Application bundle generation complete`, 0 errors.
+
+- [ ] **Step 3: Commit**
+
+  ```bash
+  git add SmartEvents.UI/src/styles.scss
+  git commit -m "fix: make dashboard nav sticky on scroll"
+  ```
+
+---
+
+## Task 10: Fix event recommendations — seed more events
+
+**Files:**
+- Modify: `SmartEvents.API/Infrastructure/Data/DbSeeder.cs`
+
+The recommendations endpoint works correctly, but the seeded data has only one event per category, so there is nothing to recommend after registering. The fix is to seed 3 additional events in categories that already exist (`Conference`, `Exhibition`, `Workshop`) so recommendations have candidates to return.
+
+- [ ] **Step 1: Open the seeder and locate the events block**
+
+  Open `SmartEvents.API/Infrastructure/Data/DbSeeder.cs`. Find the line:
+
+  ```csharp
+  db.Events.AddRange(devSummit, angularWorkshop, afrikaFestConcert, networkingBrunch, aiWebinar, startupExpo);
+  ```
+
+- [ ] **Step 2: Add three new seeded events before that AddRange call**
+
+  Insert the following three events immediately before the `db.Events.AddRange(...)` line. The existing company and organizer variables (`techCo`, `afrikaFest`, `organizer1`, `organizer2`) and venue variables (`bicc`, `sunbird`, `blantyreSports`) are already declared earlier in the seeder.
+
+  ```csharp
+  var womenInTechSummit = new Event
+  {
+      Id           = Guid.NewGuid(),
+      Title        = "Women in Tech Malawi Summit",
+      Slug         = "women-in-tech-malawi-summit-2026",
+      Description  = "A one-day conference celebrating and empowering women in technology across Malawi. Talks, panels, and networking with industry leaders.",
+      Category     = EventCategory.Conference,
+      Status       = EventStatus.Published,
+      StartDate    = now.AddDays(50),
+      EndDate      = now.AddDays(50).AddHours(8),
+      Timezone     = "Africa/Blantyre",
+      MaxAttendees = 300,
+      IsTicketed   = true,
+      TicketPrice  = 5000,
+      WaitlistEnabled = true,
+      IsPublic     = true,
+      Tags         = "women,tech,diversity,conference",
+      CompanyId    = afrikaFest.Id,
+      VenueId      = sunbird.Id,
+      OrganizerId  = organizer2.Id
+  };
+
+  var cloudEastAfricaConf = new Event
+  {
+      Id           = Guid.NewGuid(),
+      Title        = "Cloud Computing East Africa 2026",
+      Slug         = "cloud-computing-east-africa-2026",
+      Description  = "Regional conference covering AWS, Azure, and GCP adoption across East and Central Africa. Case studies, workshops, and certification prep sessions.",
+      Category     = EventCategory.Conference,
+      Status       = EventStatus.Published,
+      StartDate    = now.AddDays(80),
+      EndDate      = now.AddDays(81),
+      Timezone     = "Africa/Blantyre",
+      MaxAttendees = 250,
+      IsTicketed   = true,
+      TicketPrice  = 9500,
+      WaitlistEnabled = false,
+      IsPublic     = true,
+      Tags         = "cloud,aws,azure,gcp,conference",
+      CompanyId    = techCo.Id,
+      VenueId      = bicc.Id,
+      OrganizerId  = organizer1.Id
+  };
+
+  var afrikaFestExhibition = new Event
+  {
+      Id           = Guid.NewGuid(),
+      Title        = "AfrikaFest Arts & Culture Exhibition",
+      Slug         = "afrikafest-arts-culture-exhibition-2026",
+      Description  = "A vibrant exhibition showcasing Malawian and African art, crafts, photography, and heritage. Open to all ages and free to attend.",
+      Category     = EventCategory.Exhibition,
+      Status       = EventStatus.Published,
+      StartDate    = now.AddDays(95),
+      EndDate      = now.AddDays(97),
+      Timezone     = "Africa/Blantyre",
+      MaxAttendees = 2000,
+      IsTicketed   = false,
+      WaitlistEnabled = false,
+      IsPublic     = true,
+      Tags         = "art,culture,heritage,exhibition,free",
+      CompanyId    = afrikaFest.Id,
+      VenueId      = blantyreSports.Id,
+      OrganizerId  = organizer2.Id
+  };
+  ```
+
+- [ ] **Step 3: Add the new events to the AddRange call**
+
+  Replace:
+
+  ```csharp
+  db.Events.AddRange(devSummit, angularWorkshop, afrikaFestConcert, networkingBrunch, aiWebinar, startupExpo);
+  ```
+
+  With:
+
+  ```csharp
+  db.Events.AddRange(devSummit, angularWorkshop, afrikaFestConcert, networkingBrunch, aiWebinar, startupExpo,
+      womenInTechSummit, cloudEastAfricaConf, afrikaFestExhibition);
+  ```
+
+- [ ] **Step 4: Build the API**
+
+  ```bash
+  cd SmartEvents.API
+  dotnet build 2>&1 | tail -10
+  ```
+
+  Expected: `Build succeeded. 0 Error(s)`.
+
+- [ ] **Step 5: Verify recommendations work**
+
+  ```bash
+  cd SmartEvents.API && dotnet run &
+  sleep 8
+
+  # Login as attendee
+  TOKEN=$(curl -s -X POST http://localhost:5148/api/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"attendee@example.com","password":"Seed1234!"}' \
+    | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
+
+  # Get the devSummit event ID (Conference category)
+  SUMMIT_ID=$(curl -s "http://localhost:5148/api/events?page=1&pageSize=20" \
+    | grep -o '"slug":"dev-summit[^"]*"' | head -1 | cut -d'"' -f4)
+  echo "Dev Summit slug: $SUMMIT_ID"
+
+  # Actually get the ID from the slug
+  SUMMIT_ID=$(curl -s "http://localhost:5148/api/events/dev-summit-malawi-2026" \
+    | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+  echo "Dev Summit ID: $SUMMIT_ID"
+
+  # Register for devSummit
+  curl -s -X POST http://localhost:5148/api/registrations \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $TOKEN" \
+    -d "{\"eventId\":\"$SUMMIT_ID\"}" | grep -o '"status":"[^"]*"'
+
+  # Get recommendations excluding devSummit — should return Conference events
+  curl -s "http://localhost:5148/api/events/recommended?excludeEventId=$SUMMIT_ID" \
+    -H "Authorization: Bearer $TOKEN" | grep -o '"title":"[^"]*"'
+  ```
+
+  Expected: at least `"title":"Women in Tech Malawi Summit"` and `"title":"Cloud Computing East Africa 2026"` in the response.
+
+  ```bash
+  kill $(lsof -ti:5148) 2>/dev/null || true
+  ```
+
+- [ ] **Step 6: Commit**
+
+  ```bash
+  git add SmartEvents.API/Infrastructure/Data/DbSeeder.cs
+  git commit -m "fix: seed more events in overlapping categories for recommendations"
+  ```
+
+---
+
+## Task 11: Company member management — backend
+
+**Files:**
+- Modify: `SmartEvents.API/Application/DTOs/CompanyDtos.cs`
+- Modify: `SmartEvents.API/Controllers/CompaniesController.cs`
+
+CompanyAdmins and SuperAdmins need to add, change the role of, and remove users from their company. Members are existing users found by email.
+
+- [ ] **Step 1: Add member DTOs to CompanyDtos.cs**
+
+  Open `SmartEvents.API/Application/DTOs/CompanyDtos.cs`. Add `using SmartEvents.API.Domain.Enums;` at the top if not already present, then append to the end of the file:
+
+  ```csharp
+  public record AddCompanyMemberRequest(
+      [Required, EmailAddress] string Email,
+      UserRole Role
+  );
+
+  public record UpdateMemberRoleRequest(UserRole Role);
+
+  public record CompanyMemberResponse(
+      Guid Id,
+      string Email,
+      string FirstName,
+      string LastName,
+      UserRole Role,
+      bool IsActive
+  );
+  ```
+
+- [ ] **Step 2: Add 4 member endpoints to CompaniesController**
+
+  Open `SmartEvents.API/Controllers/CompaniesController.cs`. Before the closing `}` of the class, add:
+
+  ```csharp
+  [HttpGet("{id:guid}/members")]
+  [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)}")]
+  public async Task<ActionResult<IEnumerable<CompanyMemberResponse>>> GetMembers(Guid id)
+  {
+      var company = await db.Companies.FindAsync(id);
+      if (company is null) return NotFound();
+
+      var members = await db.Users
+          .Where(u => u.CompanyId == id)
+          .OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
+          .ToListAsync();
+
+      return Ok(members.Select(ToMemberResponse));
+  }
+
+  [HttpPost("{id:guid}/members")]
+  [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)}")]
+  public async Task<ActionResult<CompanyMemberResponse>> AddMember(Guid id, AddCompanyMemberRequest request)
+  {
+      var company = await db.Companies.FindAsync(id);
+      if (company is null) return NotFound(new { message = "Company not found." });
+
+      var user = await db.Users.FirstOrDefaultAsync(u => u.Email == request.Email.ToLower());
+      if (user is null)
+          return NotFound(new { message = "No account found with that email address." });
+
+      if (user.CompanyId.HasValue && user.CompanyId != id)
+          return Conflict(new { message = "User already belongs to another company." });
+
+      user.CompanyId = id;
+      user.Role = request.Role;
+      await db.SaveChangesAsync();
+
+      return Ok(ToMemberResponse(user));
+  }
+
+  [HttpPut("{id:guid}/members/{userId:guid}")]
+  [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)}")]
+  public async Task<ActionResult<CompanyMemberResponse>> UpdateMemberRole(Guid id, Guid userId, UpdateMemberRoleRequest request)
+  {
+      var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId && u.CompanyId == id);
+      if (user is null) return NotFound();
+
+      user.Role = request.Role;
+      await db.SaveChangesAsync();
+
+      return Ok(ToMemberResponse(user));
+  }
+
+  [HttpDelete("{id:guid}/members/{userId:guid}")]
+  [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)}")]
+  public async Task<IActionResult> RemoveMember(Guid id, Guid userId)
+  {
+      var callerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+      var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId && u.CompanyId == id);
+      if (user is null) return NotFound();
+      if (user.Id == callerId)
+          return BadRequest(new { message = "You cannot remove yourself from the company." });
+
+      user.CompanyId = null;
+      user.Role = UserRole.Attendee;
+      await db.SaveChangesAsync();
+
+      return NoContent();
+  }
+
+  private static CompanyMemberResponse ToMemberResponse(User u) =>
+      new(u.Id, u.Email, u.FirstName, u.LastName, u.Role, u.IsActive);
+  ```
+
+- [ ] **Step 3: Build the API**
+
+  ```bash
+  cd SmartEvents.API
+  dotnet build 2>&1 | tail -10
+  ```
+
+  Expected: `Build succeeded. 0 Error(s)`.
+
+- [ ] **Step 4: Smoke-test**
+
+  ```bash
+  cd SmartEvents.API && dotnet run &
+  sleep 8
+
+  # Login as CompanyAdmin
+  ADMIN_TOKEN=$(curl -s -X POST http://localhost:5148/api/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"admin@techevents.co","password":"Seed1234!"}' \
+    | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
+
+  # Get company ID from the token claims via profile
+  COMPANY_ID=$(curl -s http://localhost:5148/api/auth/me \
+    -H "Authorization: Bearer $ADMIN_TOKEN" \
+    | grep -o '"companyId":"[^"]*"' | cut -d'"' -f4)
+  echo "Company ID: $COMPANY_ID"
+
+  # List members
+  curl -s "http://localhost:5148/api/companies/$COMPANY_ID/members" \
+    -H "Authorization: Bearer $ADMIN_TOKEN" | grep -o '"email":"[^"]*"'
+
+  # Add attendee to the company as Organizer
+  curl -s -X POST "http://localhost:5148/api/companies/$COMPANY_ID/members" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $ADMIN_TOKEN" \
+    -d '{"email":"attendee@example.com","role":"Organizer"}' | grep -o '"role":"[^"]*"'
+
+  kill $(lsof -ti:5148) 2>/dev/null || true
+  ```
+
+  Expected: list returns existing members, add call returns `"role":"Organizer"`.
+
+- [ ] **Step 5: Commit**
+
+  ```bash
+  git add SmartEvents.API/Application/DTOs/CompanyDtos.cs \
+          SmartEvents.API/Controllers/CompaniesController.cs
+  git commit -m "feat: add company member management endpoints"
+  ```
+
+---
+
+## Task 12: Company member management — frontend
+
+**Files:**
+- Create: `SmartEvents.UI/src/app/core/services/company-members.service.ts`
+- Create: `SmartEvents.UI/src/app/features/companies/company-members/company-members.component.ts`
+- Create: `SmartEvents.UI/src/app/features/companies/company-members/company-members.component.html`
+- Modify: `SmartEvents.UI/src/app/features/companies/companies.routes.ts`
+- Modify: `SmartEvents.UI/src/styles.scss`
+
+- [ ] **Step 1: Create CompanyMembersService**
+
+  Create `SmartEvents.UI/src/app/core/services/company-members.service.ts`:
+
+  ```typescript
+  import { Injectable } from '@angular/core';
+  import { HttpClient } from '@angular/common/http';
+  import { environment } from '../../../environments/environment';
+  import { UserRole } from '../models/user.models';
+
+  export interface CompanyMember {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: UserRole;
+    isActive: boolean;
+  }
+
+  export interface AddMemberRequest {
+    email: string;
+    role: UserRole;
+  }
+
+  @Injectable({ providedIn: 'root' })
+  export class CompanyMembersService {
+    private url(companyId: string) {
+      return `${environment.apiUrl}/companies/${companyId}/members`;
+    }
+
+    constructor(private http: HttpClient) {}
+
+    getMembers(companyId: string) {
+      return this.http.get<CompanyMember[]>(this.url(companyId));
+    }
+
+    addMember(companyId: string, request: AddMemberRequest) {
+      return this.http.post<CompanyMember>(this.url(companyId), request);
+    }
+
+    updateRole(companyId: string, userId: string, role: UserRole) {
+      return this.http.put<CompanyMember>(`${this.url(companyId)}/${userId}`, { role });
+    }
+
+    removeMember(companyId: string, userId: string) {
+      return this.http.delete<void>(`${this.url(companyId)}/${userId}`);
+    }
+  }
+  ```
+
+  **Note:** `UserRole` is imported from `user.models.ts`. Check that file first. If `UserRole` is not already exported as a type there, add:
+  ```typescript
+  export type UserRole = 'SuperAdmin' | 'CompanyAdmin' | 'Organizer' | 'Attendee';
+  ```
+
+- [ ] **Step 2: Check user.models.ts for UserRole**
+
+  ```bash
+  grep -n "UserRole" SmartEvents.UI/src/app/core/models/user.models.ts
+  ```
+
+  If `UserRole` is already defined, use the import path shown. If not, add the type to `user.models.ts`.
+
+- [ ] **Step 3: Create CompanyMembersComponent TypeScript**
+
+  Create directory `SmartEvents.UI/src/app/features/companies/company-members/` then create `company-members.component.ts`:
+
+  ```typescript
+  import { Component, OnInit } from '@angular/core';
+  import { CommonModule } from '@angular/common';
+  import { FormsModule } from '@angular/forms';
+  import { ActivatedRoute, RouterLink } from '@angular/router';
+  import { CompanyMembersService, CompanyMember, AddMemberRequest } from '../../../core/services/company-members.service';
+  import { UserRole } from '../../../core/models/user.models';
+  import { SkeletonComponent } from '../../../core/components/skeleton/skeleton.component';
+
+  @Component({
+    selector: 'app-company-members',
+    standalone: true,
+    imports: [CommonModule, FormsModule, RouterLink, SkeletonComponent],
+    templateUrl: './company-members.component.html'
+  })
+  export class CompanyMembersComponent implements OnInit {
+    companyId = '';
+    members: CompanyMember[] = [];
+    loading = true;
+    adding = false;
+    removing: string | null = null;
+
+    newEmail = '';
+    newRole: UserRole = 'Organizer';
+    error = '';
+    success = '';
+
+    readonly assignableRoles: UserRole[] = ['CompanyAdmin', 'Organizer', 'Attendee'];
+
+    constructor(
+      private route: ActivatedRoute,
+      private membersService: CompanyMembersService
+    ) {}
+
+    ngOnInit(): void {
+      this.companyId = this.route.snapshot.paramMap.get('id')!;
+      this.load();
+    }
+
+    load(): void {
+      this.loading = true;
+      this.membersService.getMembers(this.companyId).subscribe({
+        next: data => { this.members = data; this.loading = false; },
+        error: () => { this.loading = false; }
+      });
+    }
+
+    addMember(): void {
+      if (!this.newEmail) return;
+      this.adding = true;
+      this.error = '';
+      this.success = '';
+      this.membersService.addMember(this.companyId, { email: this.newEmail, role: this.newRole }).subscribe({
+        next: member => {
+          this.adding = false;
+          this.success = `${member.firstName} ${member.lastName} added as ${member.role}.`;
+          this.newEmail = '';
+          const existing = this.members.findIndex(m => m.id === member.id);
+          if (existing >= 0) this.members[existing] = member;
+          else this.members = [...this.members, member];
+        },
+        error: err => {
+          this.adding = false;
+          this.error = err.error?.message ?? 'Failed to add member.';
+        }
+      });
+    }
+
+    changeRole(member: CompanyMember, role: UserRole): void {
+      this.membersService.updateRole(this.companyId, member.id, role).subscribe({
+        next: updated => {
+          const idx = this.members.findIndex(m => m.id === updated.id);
+          if (idx >= 0) this.members[idx] = updated;
+        },
+        error: err => { this.error = err.error?.message ?? 'Failed to update role.'; }
+      });
+    }
+
+    remove(id: string): void {
+      this.removing = id;
+      this.error = '';
+      this.membersService.removeMember(this.companyId, id).subscribe({
+        next: () => {
+          this.removing = null;
+          this.members = this.members.filter(m => m.id !== id);
+        },
+        error: err => {
+          this.removing = null;
+          this.error = err.error?.message ?? 'Failed to remove member.';
+        }
+      });
+    }
+  }
+  ```
+
+- [ ] **Step 4: Create CompanyMembersComponent HTML**
+
+  Create `SmartEvents.UI/src/app/features/companies/company-members/company-members.component.html`:
+
+  ```html
+  <div class="members-page">
+    <div class="members-header">
+      <h1>Company Members</h1>
+      <a [routerLink]="['/companies', companyId, 'edit']" class="btn-secondary">&larr; Back to Company</a>
+    </div>
+
+    @if (error) { <p class="error">{{ error }}</p> }
+    @if (success) { <p class="success-msg">{{ success }}</p> }
+
+    <div class="add-member-form">
+      <h3>Add Member</h3>
+      <div class="add-member-fields">
+        <input type="email" [(ngModel)]="newEmail" placeholder="member@example.com" />
+        <select [(ngModel)]="newRole">
+          @for (role of assignableRoles; track role) {
+            <option [value]="role">{{ role }}</option>
+          }
+        </select>
+        <button class="btn-primary" [disabled]="!newEmail || adding" (click)="addMember()">
+          {{ adding ? 'Adding...' : 'Add Member' }}
+        </button>
+      </div>
+    </div>
+
+    @if (loading) {
+      <app-skeleton [count]="4" />
+    } @else if (members.length === 0) {
+      <div class="empty-state">
+        <p>No members yet. Add the first one above.</p>
+      </div>
+    } @else {
+      <div class="members-list">
+        @for (member of members; track member.id) {
+          <div class="member-card">
+            <div class="member-avatar">{{ member.firstName[0] }}{{ member.lastName[0] }}</div>
+            <div class="member-info">
+              <p class="member-name">{{ member.firstName }} {{ member.lastName }}</p>
+              <p class="member-email">{{ member.email }}</p>
+            </div>
+            <div class="member-actions">
+              <select [ngModel]="member.role" (ngModelChange)="changeRole(member, $event)">
+                @for (role of assignableRoles; track role) {
+                  <option [value]="role">{{ role }}</option>
+                }
+              </select>
+              <button class="btn-danger btn-sm"
+                [disabled]="removing === member.id"
+                (click)="remove(member.id)">
+                {{ removing === member.id ? '...' : 'Remove' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+  ```
+
+- [ ] **Step 5: Add the members route to companies.routes.ts**
+
+  Open `SmartEvents.UI/src/app/features/companies/companies.routes.ts`. Add a new route for `/:id/members` (before the catch-all or at the end of the routes array):
+
+  ```typescript
+  {
+    path: ':id/members',
+    canActivate: [authGuard],
+    loadComponent: () => import('./company-members/company-members.component').then(m => m.CompanyMembersComponent)
+  },
+  ```
+
+- [ ] **Step 6: Add a "Manage Members" link in edit-company**
+
+  Open `SmartEvents.UI/src/app/features/companies/edit-company/edit-company.component.html`. Find the page header or action buttons area and add a link to the members page:
+
+  ```html
+  <a [routerLink]="['/companies', companyId, 'members']" class="btn-secondary">Manage Members</a>
+  ```
+
+  The exact placement depends on the current template — add it near the top alongside any existing action buttons or after the form heading.
+
+- [ ] **Step 7: Add member management styles to styles.scss**
+
+  Find the `/* ─── Venue Detail */` comment in `styles.scss` and insert the following block **before** it:
+
+  ```scss
+  /* ─── Company Members ────────────────────────────────────── */
+  .members-page { max-width: 720px; margin: 0 auto; padding: 1.5rem; }
+
+  .members-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; h1 { margin: 0; } }
+
+  .add-member-form {
+    background: var(--surface); border-radius: var(--radius-lg); padding: 1.25rem;
+    margin-bottom: 1.5rem; border: 1px solid var(--border);
+    h3 { margin: 0 0 .75rem; font-size: .95rem; }
+  }
+
+  .add-member-fields {
+    display: flex; gap: .6rem; flex-wrap: wrap;
+    input, select { padding: .5rem .75rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: .875rem; background: var(--white); color: var(--text); }
+    input { flex: 1; min-width: 200px; }
+  }
+
+  .members-list { display: flex; flex-direction: column; gap: .6rem; }
+
+  .member-card {
+    display: flex; align-items: center; gap: 1rem;
+    padding: .85rem 1rem; border-radius: var(--radius-lg);
+    border: 1px solid var(--border); background: var(--white); box-shadow: var(--shadow-sm);
+  }
+
+  .member-avatar {
+    width: 38px; height: 38px; border-radius: 50%; background: var(--primary-light);
+    color: var(--primary-dark); font-weight: 700; font-size: .85rem;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  .member-info { flex: 1; }
+  .member-name { font-weight: 600; font-size: .9rem; margin: 0; }
+  .member-email { font-size: .8rem; color: var(--text-muted); margin: 0; }
+
+  .member-actions { display: flex; align-items: center; gap: .5rem; flex-shrink: 0;
+    select { padding: .35rem .6rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: .8rem; background: var(--white); color: var(--text); }
+  }
+
+  @media (max-width: 640px) {
+    .member-card { flex-wrap: wrap; }
+    .member-actions { width: 100%; justify-content: flex-end; }
+    .add-member-fields { flex-direction: column; input { min-width: unset; } }
+  }
+  ```
+
+- [ ] **Step 8: Build to check for TypeScript errors**
+
+  ```bash
+  cd SmartEvents.UI
+  npx ng build --configuration development 2>&1 | tail -15
+  ```
+
+  Expected: `Application bundle generation complete`, 0 errors.
+
+- [ ] **Step 9: Commit**
+
+  ```bash
+  git add SmartEvents.UI/src/app/core/services/company-members.service.ts \
+          SmartEvents.UI/src/app/features/companies/company-members/ \
+          SmartEvents.UI/src/app/features/companies/companies.routes.ts \
+          SmartEvents.UI/src/app/features/companies/edit-company/edit-company.component.html \
+          SmartEvents.UI/src/styles.scss
+  git commit -m "feat: add company member management UI"
   ```
