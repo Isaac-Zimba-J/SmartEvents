@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { VenueBookingsService } from '../../../core/services/venue-bookings.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { VenueBooking } from '../../../core/models/venue.models';
 
 @Component({
@@ -17,7 +18,7 @@ export class MyVenueBookingsComponent implements OnInit {
   loading = true;
   error = '';
 
-  constructor(private venueBookingsService: VenueBookingsService) {}
+  constructor(private venueBookingsService: VenueBookingsService, private toastService: ToastService) {}
 
   ngOnInit(): void {
     this.venueBookingsService.getMy().subscribe({
@@ -40,7 +41,7 @@ export class MyVenueBookingsComponent implements OnInit {
         );
       },
       error: err => {
-        console.error('Could not cancel booking', err);
+        this.toastService.error(err.error?.message ?? 'Could not cancel booking');
       }
     });
   }
