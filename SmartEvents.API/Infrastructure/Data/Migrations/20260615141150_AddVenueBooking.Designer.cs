@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartEvents.API.Infrastructure.Data;
@@ -11,9 +12,11 @@ using SmartEvents.API.Infrastructure.Data;
 namespace SmartEvents.API.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(SmartEventsDbContext))]
-    partial class SmartEventsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260615141150_AddVenueBooking")]
+    partial class AddVenueBooking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

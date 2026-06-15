@@ -13,6 +13,7 @@ public class SmartEventsDbContext(DbContextOptions<SmartEventsDbContext> options
     public DbSet<Ticket> Tickets => Set<Ticket>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<VenueBooking> VenueBookings => Set<VenueBooking>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -51,6 +52,22 @@ public class SmartEventsDbContext(DbContextOptions<SmartEventsDbContext> options
                 .WithMany(c => c.Venues)
                 .HasForeignKey(v => v.CompanyId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // VenueBooking
+        modelBuilder.Entity<VenueBooking>(e =>
+        {
+            e.HasKey(vb => vb.Id);
+            e.Property(vb => vb.TotalAmount).HasColumnType("decimal(18,2)");
+            e.HasOne(vb => vb.Venue)
+                .WithMany()
+                .HasForeignKey(vb => vb.VenueId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(vb => vb.User)
+                .WithMany()
+                .HasForeignKey(vb => vb.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(vb => new { vb.VenueId, vb.StartDate, vb.EndDate });
         });
 
         // Event
