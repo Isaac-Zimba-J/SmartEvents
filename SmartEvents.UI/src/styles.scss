@@ -251,7 +251,14 @@ button:not([class]) {
 }
 
 .success-msg {
+  display: flex; align-items: center; gap: .4rem;
   color: #166534; background: var(--success-light); border: 1px solid #86efac;
+  border-radius: var(--radius); padding: .6rem .9rem; font-size: .875rem; margin-bottom: .75rem;
+}
+
+.error-msg {
+  display: flex; align-items: center; gap: .4rem;
+  color: var(--danger); background: var(--danger-light); border: 1px solid #fca5a5;
   border-radius: var(--radius); padding: .6rem .9rem; font-size: .875rem; margin-bottom: .75rem;
 }
 
