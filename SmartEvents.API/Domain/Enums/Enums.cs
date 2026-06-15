@@ -79,4 +79,9 @@ public enum VenueType
     Hybrid
 }
 
-public enum VenueBookingStatus { Pending, Confirmed, Cancelled }
+public enum VenueBookingStatus
+{
+    Pending,
+    Confirmed,
+    Cancelled
+}
