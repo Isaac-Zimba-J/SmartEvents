@@ -1,0 +1,40 @@
+<div class="my-venue-bookings-page">
+  <h1>
+    <lucide-angular name="book-marked"></lucide-angular>
+    My Venue Bookings
+  </h1>
+
+  @if (loading) {
+    <p>Loading your bookings...</p>
+  } @else if (error) {
+    <p class="error">{{ error }}</p>
+  } @else if (bookings.length === 0) {
+    <p class="empty">You haven't made any venue bookings yet.</p>
+    <a routerLink="/venues" class="btn-primary">Browse Venues</a>
+  } @else {
+    <div class="bookings-list">
+      @for (booking of bookings; track booking.id) {
+        <div class="booking-card">
+          <div class="booking-info">
+            <h3>
+              <a [routerLink]="'/venues/' + booking.venueId">{{ booking.venueName }}</a>
+            </h3>
+            <p class="location">{{ booking.venueAddress }}, {{ booking.venueCity }}</p>
+            <p class="dates">{{ formatDate(booking.startDate) }} – {{ formatDate(booking.endDate) }}</p>
+            <span [class]="statusClass(booking.status)">{{ booking.status }}</span>
+            <p class="amount"><strong>K {{ booking.totalAmount | number:'1.0-2' }}</strong></p>
+            <p class="payment-method">Payment: {{ booking.paymentMethod }}</p>
+            @if (booking.transactionRef) {
+              <p class="transaction-ref">Ref: {{ booking.transactionRef }}</p>
+            }
+          </div>
+          <div class="booking-actions">
+            @if (booking.status !== 'Cancelled') {
+              <button class="btn-danger-sm" (click)="cancel(booking.id)">Cancel Booking</button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
