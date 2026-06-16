@@ -334,6 +334,7 @@ button:not([class]) {
 }
 
 .dashboard-nav {
+  position: sticky; top: 0; z-index: 100;
   background: var(--white); border-bottom: 1px solid var(--border);
   padding: 0 1.75rem; display: flex; gap: .1rem; overflow-x: auto;
 
