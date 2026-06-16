@@ -516,6 +516,41 @@ button:not([class]) {
 .checkout-actions { display: flex; gap: .75rem; button { flex: 1; } }
 .mock-card-fields { display: flex; flex-direction: column; gap: .5rem; }
 
+/* ─── My Venue Bookings ──────────────────────────────────── */
+.my-bookings-page {
+  max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem;
+  h1 { display: flex; align-items: center; gap: .5rem; font-size: 1.6rem; margin-bottom: 1.5rem; }
+}
+
+.booking-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1.25rem 1.5rem; margin-bottom: 1rem;
+  display: flex; flex-direction: column; gap: .5rem;
+
+  h3 { margin: 0; font-size: 1.1rem; }
+  h3 a { color: var(--primary); text-decoration: none; &:hover { text-decoration: underline; } }
+
+  .booking-meta { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; font-size: .875rem; color: var(--text-muted); }
+  .booking-amount { font-weight: 600; color: var(--text); font-size: 1rem; }
+  .booking-ref { font-size: .8rem; color: var(--text-muted); font-family: monospace; }
+  .booking-actions { margin-top: .5rem; }
+}
+
+.status-confirmed { display: inline-block; padding: .2rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 600; background: var(--success-light); color: #166534; }
+.status-cancelled { display: inline-block; padding: .2rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 600; background: var(--danger-light); color: #991b1b; opacity: .85; }
+.status-pending   { display: inline-block; padding: .2rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 600; background: #fef3c7; color: #92400e; }
+
+.btn-danger-sm {
+  padding: .35rem .9rem; font-size: .8rem; font-weight: 500; border-radius: var(--radius);
+  background: var(--danger-light); color: #991b1b; border: 1px solid #fca5a5; cursor: pointer;
+  &:hover { background: var(--danger); color: #fff; }
+}
+
+.venue-card-footer {
+  display: flex; gap: .5rem; padding: .75rem 1rem; border-top: 1px solid var(--border);
+  a { flex: 1; text-align: center; }
+}
+
 /* ─── Recommendations ────────────────────────────────────── */
 .recommendations-section {
   margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border);

@@ -46,11 +46,12 @@
               <p class="amenities">{{ venue.amenities }}</p>
             }
           </div>
-          @if (isOrganizer) {
-            <div class="venue-actions">
+          <div class="venue-card-footer">
+            <a [routerLink]="['/venues', venue.id]" class="btn-primary">View Details</a>
+            @if (isOrganizer) {
               <a [routerLink]="['/venues', venue.id, 'edit']" class="btn-secondary">Edit</a>
-            </div>
-          }
+            }
+          </div>
         </div>
       }
     </div>
