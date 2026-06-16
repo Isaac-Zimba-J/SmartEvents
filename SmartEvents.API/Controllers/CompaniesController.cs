@@ -143,8 +143,8 @@ public class CompaniesController(SmartEventsDbContext db) : ControllerBase
         var user = await db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
         if (user is null) return NotFound(new { message = "User not found." });
 
-        if (user.CompanyId == id)
-            return Conflict(new { message = "User is already a member of this company." });
+        if (user.CompanyId is not null)
+            return Conflict(new { message = "User is already a member of a company." });
 
         user.CompanyId = id;
         user.Role = request.Role;
@@ -202,6 +202,7 @@ public class CompaniesController(SmartEventsDbContext db) : ControllerBase
         if (user is null) return NotFound(new { message = "Member not found in this company." });
 
         user.CompanyId = null;
+        user.Role = UserRole.Attendee;
         user.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
