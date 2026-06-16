@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -97,8 +98,124 @@ public class CompaniesController(SmartEventsDbContext db) : ControllerBase
         return NoContent();
     }
 
+    // ── Member Management ──────────────────────────────────────────────────
+
+    [HttpGet("{id:guid}/members")]
+    [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)}")]
+    public async Task<ActionResult<IEnumerable<CompanyMemberResponse>>> GetMembers(Guid id)
+    {
+        var callerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var caller = await db.Users.FindAsync(callerId);
+        if (caller is null) return Unauthorized();
+
+        if (caller.Role == UserRole.CompanyAdmin && caller.CompanyId != id)
+            return Forbid();
+
+        var company = await db.Companies.FindAsync(id);
+        if (company is null) return NotFound(new { message = "Company not found." });
+
+        var members = await db.Users
+            .Where(u => u.CompanyId == id)
+            .OrderBy(u => u.FirstName)
+            .ThenBy(u => u.LastName)
+            .ToListAsync();
+
+        return Ok(members.Select(ToMemberResponse));
+    }
+
+    [HttpPost("{id:guid}/members")]
+    [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)}")]
+    public async Task<ActionResult<CompanyMemberResponse>> AddMember(Guid id, AddCompanyMemberRequest request)
+    {
+        var callerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var caller = await db.Users.FindAsync(callerId);
+        if (caller is null) return Unauthorized();
+
+        if (caller.Role == UserRole.CompanyAdmin && caller.CompanyId != id)
+            return Forbid();
+
+        var company = await db.Companies.FindAsync(id);
+        if (company is null) return NotFound(new { message = "Company not found." });
+
+        if (request.Role == UserRole.SuperAdmin)
+            return BadRequest(new { message = "Cannot assign the SuperAdmin role to a company member." });
+
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
+        if (user is null) return NotFound(new { message = "User not found." });
+
+        if (user.CompanyId == id)
+            return Conflict(new { message = "User is already a member of this company." });
+
+        user.CompanyId = id;
+        user.Role = request.Role;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await db.SaveChangesAsync();
+        return Ok(ToMemberResponse(user));
+    }
+
+    [HttpPut("{id:guid}/members/{userId:guid}")]
+    [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)}")]
+    public async Task<ActionResult<CompanyMemberResponse>> UpdateMemberRole(Guid id, Guid userId, UpdateMemberRoleRequest request)
+    {
+        var callerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var caller = await db.Users.FindAsync(callerId);
+        if (caller is null) return Unauthorized();
+
+        if (caller.Role == UserRole.CompanyAdmin && caller.CompanyId != id)
+            return Forbid();
+
+        var company = await db.Companies.FindAsync(id);
+        if (company is null) return NotFound(new { message = "Company not found." });
+
+        if (request.Role == UserRole.SuperAdmin)
+            return BadRequest(new { message = "Cannot assign the SuperAdmin role to a company member." });
+
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId && u.CompanyId == id);
+        if (user is null) return NotFound(new { message = "Member not found in this company." });
+
+        user.Role = request.Role;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await db.SaveChangesAsync();
+        return Ok(ToMemberResponse(user));
+    }
+
+    [HttpDelete("{id:guid}/members/{userId:guid}")]
+    [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)}")]
+    public async Task<IActionResult> RemoveMember(Guid id, Guid userId)
+    {
+        var callerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var caller = await db.Users.FindAsync(callerId);
+        if (caller is null) return Unauthorized();
+
+        if (caller.Role == UserRole.CompanyAdmin && caller.CompanyId != id)
+            return Forbid();
+
+        var company = await db.Companies.FindAsync(id);
+        if (company is null) return NotFound(new { message = "Company not found." });
+
+        if (userId == callerId)
+            return BadRequest(new { message = "You cannot remove yourself from the company." });
+
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId && u.CompanyId == id);
+        if (user is null) return NotFound(new { message = "Member not found in this company." });
+
+        user.CompanyId = null;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await db.SaveChangesAsync();
+        return NoContent();
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+
     private static CompanyResponse ToResponse(Company c) => new(
         c.Id, c.Name, c.Slug, c.Description, c.LogoUrl,
         c.Website, c.Phone, c.Email, c.Address, c.IsActive, c.CreatedAt
+    );
+
+    private static CompanyMemberResponse ToMemberResponse(User u) => new(
+        u.Id, u.Email, u.FirstName, u.LastName, u.Role, u.CreatedAt
     );
 }

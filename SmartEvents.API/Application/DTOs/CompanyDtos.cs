@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SmartEvents.API.Domain.Enums;
 
 namespace SmartEvents.API.Application.DTOs;
 
@@ -33,5 +34,23 @@ public record CompanyResponse(
     string? Email,
     string? Address,
     bool IsActive,
+    DateTime CreatedAt
+);
+
+public record AddCompanyMemberRequest(
+    [Required, EmailAddress] string Email,
+    [Required] UserRole Role
+);
+
+public record UpdateMemberRoleRequest(
+    [Required] UserRole Role
+);
+
+public record CompanyMemberResponse(
+    Guid Id,
+    string Email,
+    string FirstName,
+    string LastName,
+    UserRole Role,
     DateTime CreatedAt
 );
