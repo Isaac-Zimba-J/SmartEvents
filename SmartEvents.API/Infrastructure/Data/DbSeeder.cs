@@ -343,7 +343,74 @@ public static class DbSeeder
             OrganizerId  = organizer2.Id
         };
 
-        db.Events.AddRange(devSummit, angularWorkshop, afrikaFestConcert, networkingBrunch, aiWebinar, startupExpo);
+        var womenInTechSummit = new Event
+        {
+            Id           = Guid.Parse("a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
+            Title        = "Women in Tech Summit Malawi",
+            Slug         = "women-in-tech-summit-malawi",
+            Description  = "A transformative conference celebrating women in technology across Malawi and the region. Featuring inspiring keynotes, panel discussions on gender equity in STEM, and hands-on mentorship sessions.",
+            Category     = EventCategory.Conference,
+            Status       = EventStatus.Published,
+            StartDate    = now.AddDays(90),
+            EndDate      = now.AddDays(91),
+            Timezone     = "Africa/Blantyre",
+            MaxAttendees = 200,
+            IsTicketed   = true,
+            TicketPrice  = 5000,
+            WaitlistEnabled = true,
+            IsPublic     = true,
+            Tags         = "women,tech,diversity,stem,conference",
+            CompanyId    = afrikaFest.Id,
+            VenueId      = bicc.Id,
+            OrganizerId  = organizer2.Id
+        };
+
+        var cloudEastAfricaConf = new Event
+        {
+            Id           = Guid.Parse("b2c3d4e5-f6a7-8901-bcde-f12345678901"),
+            Title        = "Cloud East Africa Conference 2026",
+            Slug         = "cloud-east-africa-conference-2026",
+            Description  = "The definitive cloud computing conference for East Africa. Explore AWS, Azure, and GCP best practices, DevOps pipelines, infrastructure-as-code, and cloud-native architectures with regional experts.",
+            Category     = EventCategory.Conference,
+            Status       = EventStatus.Published,
+            StartDate    = now.AddDays(120),
+            EndDate      = now.AddDays(121),
+            Timezone     = "Africa/Blantyre",
+            MaxAttendees = 300,
+            IsTicketed   = true,
+            TicketPrice  = 9500,
+            WaitlistEnabled = true,
+            IsPublic     = true,
+            Tags         = "cloud,aws,azure,devops,infrastructure",
+            CompanyId    = techCo.Id,
+            VenueId      = sunbird.Id,
+            OrganizerId  = organizer1.Id
+        };
+
+        var afrikaFestExhibition = new Event
+        {
+            Id           = Guid.Parse("c3d4e5f6-a7b8-9012-cdef-123456789012"),
+            Title        = "AfrikaFest Cultural Exhibition 2026",
+            Slug         = "afrikafest-cultural-exhibition-2026",
+            Description  = "A vibrant showcase of African art, crafts, fashion, and heritage. Featuring over 80 exhibitors from across the continent, live demonstrations, and a curated gallery of contemporary African art.",
+            Category     = EventCategory.Exhibition,
+            Status       = EventStatus.Published,
+            StartDate    = now.AddDays(75),
+            EndDate      = now.AddDays(77),
+            Timezone     = "Africa/Blantyre",
+            MaxAttendees = 150,
+            IsTicketed   = true,
+            TicketPrice  = 3000,
+            WaitlistEnabled = false,
+            IsPublic     = true,
+            Tags         = "culture,art,crafts,heritage,africa",
+            CompanyId    = afrikaFest.Id,
+            VenueId      = amphitheatre.Id,
+            OrganizerId  = organizer2.Id
+        };
+
+        db.Events.AddRange(devSummit, angularWorkshop, afrikaFestConcert, networkingBrunch, aiWebinar, startupExpo,
+            womenInTechSummit, cloudEastAfricaConf, afrikaFestExhibition);
 
         await db.SaveChangesAsync();
     }
