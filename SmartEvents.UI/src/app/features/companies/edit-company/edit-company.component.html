@@ -59,6 +59,7 @@
       }
 
       <div class="form-actions">
+        <a [routerLink]="['/companies', company!.id, 'members']" class="btn-secondary">Manage Members</a>
         <a routerLink="/companies" class="btn-secondary">Cancel</a>
         <button type="submit" class="btn-primary" [disabled]="saving || form.invalid">
           {{ saving ? 'Saving...' : 'Save Changes' }}

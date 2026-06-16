@@ -1,0 +1,65 @@
+<div class="company-members-page">
+  <a [routerLink]="['/companies', companyId, 'edit']" class="back-link">← Back to Company</a>
+  <h1>Manage Members</h1>
+
+  @if (loading) {
+    <p>Loading members...</p>
+  } @else if (error && members.length === 0) {
+    <p class="error">{{ error }}</p>
+  } @else {
+
+    <div class="add-member-form">
+      <h2>Add Member</h2>
+      <div class="add-member-row">
+        <input
+          type="email"
+          [(ngModel)]="addEmail"
+          name="email"
+          placeholder="member@example.com"
+        />
+        <select [(ngModel)]="addRole" name="role">
+          @for (role of availableRoles; track role) {
+            <option [value]="role">{{ role }}</option>
+          }
+        </select>
+        <button
+          class="btn-primary"
+          (click)="addMember()"
+          [disabled]="addLoading || !addEmail"
+        >
+          {{ addLoading ? 'Adding...' : 'Add Member' }}
+        </button>
+      </div>
+      @if (addError) {
+        <p class="error">{{ addError }}</p>
+      }
+    </div>
+
+    <div class="members-list">
+      <h2>Current Members ({{ members.length }})</h2>
+      @if (members.length === 0) {
+        <p>No members yet.</p>
+      }
+      @for (member of members; track member.id) {
+        <div class="member-card">
+          <div class="member-info">
+            <div class="member-name">{{ member.firstName }} {{ member.lastName }}</div>
+            <div class="member-email">{{ member.email }}</div>
+          </div>
+          <div class="member-actions">
+            <select
+              [value]="member.role"
+              (change)="updateRole(member, $any($event.target).value)"
+            >
+              @for (role of availableRoles; track role) {
+                <option [value]="role">{{ role }}</option>
+              }
+            </select>
+            <button class="btn-danger-sm" (click)="removeMember(member)">Remove</button>
+          </div>
+        </div>
+      }
+    </div>
+
+  }
+</div>

@@ -16,5 +16,10 @@ export const COMPANIES_ROUTES: Routes = [
     path: ':id/edit',
     canActivate: [authGuard],
     loadComponent: () => import('./edit-company/edit-company.component').then(m => m.EditCompanyComponent)
+  },
+  {
+    path: ':id/members',
+    canActivate: [authGuard],
+    loadComponent: () => import('./company-members/company-members.component').then(m => m.CompanyMembersComponent)
   }
 ];
