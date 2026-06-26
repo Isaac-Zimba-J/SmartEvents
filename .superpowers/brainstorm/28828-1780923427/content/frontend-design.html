@@ -1,0 +1,88 @@
+<h2>Section 2 — Frontend Design</h2>
+<p class="subtitle">How "You might also like" appears at the bottom of an event detail page</p>
+
+<div class="mockup">
+  <div class="mockup-header">Event Detail — Dev Summit Malawi 2026</div>
+  <div class="mockup-body" style="padding:16px;font-size:13px;max-width:700px">
+
+    <!-- Existing event content -->
+    <div style="background:#6366f115;border-radius:8px;padding:12px;margin-bottom:10px;border:1px solid #6366f130">
+      <div style="font-weight:600;font-size:15px;margin-bottom:4px">Dev Summit Malawi 2026</div>
+      <div style="color:#a3a3a3;font-size:12px;margin-bottom:8px">📅 June 15 · 📍 Bingu International Convention Centre · K8,500</div>
+      <div style="color:#d4d4d4;font-size:12px;line-height:1.5">Annual developer summit bringing together tech professionals across Malawi...</div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="mock-button" style="font-size:11px;padding:6px 14px">Register</button>
+        <button class="mock-button" style="font-size:11px;padding:6px 14px;background:#ffffff15;border:1px solid #ffffff30">Share</button>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div style="border-top:1px solid #ffffff15;margin:16px 0"></div>
+
+    <!-- You might also like section -->
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:16px">✨</span>
+        <h3 style="margin:0;font-size:14px;font-weight:600">You might also like</h3>
+        <span style="font-size:11px;color:#a855f7;background:#a855f715;padding:2px 8px;border-radius:999px;border:1px solid #a855f740">Based on your registrations</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+
+        <!-- Card 1 -->
+        <div style="background:#ffffff08;border:1px solid #ffffff15;border-radius:8px;padding:12px;cursor:pointer">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+            <span style="font-size:10px;background:#6366f130;color:#818cf8;padding:2px 7px;border-radius:999px">Conference</span>
+            <span style="font-size:10px;color:#a3a3a3">K5,000</span>
+          </div>
+          <div style="font-weight:600;font-size:12px;margin-bottom:3px">AfricaTech Conference 2026</div>
+          <div style="font-size:11px;color:#a3a3a3">📅 Jul 3 · Afrika Fest Productions</div>
+        </div>
+
+        <!-- Card 2 -->
+        <div style="background:#ffffff08;border:1px solid #ffffff15;border-radius:8px;padding:12px;cursor:pointer">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+            <span style="font-size:10px;background:#6366f130;color:#818cf8;padding:2px 7px;border-radius:999px">Workshop</span>
+            <span style="font-size:10px;color:#4ade80">Free</span>
+          </div>
+          <div style="font-weight:600;font-size:12px;margin-bottom:3px">Angular 18 Hands-On Workshop</div>
+          <div style="font-size:11px;color:#a3a3a3">📅 Jul 10 · TechEvents Co.</div>
+        </div>
+
+        <!-- Card 3 -->
+        <div style="background:#ffffff08;border:1px solid #ffffff15;border-radius:8px;padding:12px;cursor:pointer">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+            <span style="font-size:10px;background:#6366f130;color:#818cf8;padding:2px 7px;border-radius:999px">Networking</span>
+            <span style="font-size:10px;color:#4ade80">Free</span>
+          </div>
+          <div style="font-weight:600;font-size:12px;margin-bottom:3px">Blantyre Tech Networking Brunch</div>
+          <div style="font-size:11px;color:#a3a3a3">📅 Jul 22 · TechEvents Co.</div>
+        </div>
+
+        <!-- Card 4 -->
+        <div style="background:#ffffff08;border:1px solid #ffffff15;border-radius:8px;padding:12px;cursor:pointer">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+            <span style="font-size:10px;background:#6366f130;color:#818cf8;padding:2px 7px;border-radius:999px">Webinar</span>
+            <span style="font-size:10px;color:#4ade80">Free</span>
+          </div>
+          <div style="font-weight:600;font-size:12px;margin-bottom:3px">AI in Africa Webinar Series</div>
+          <div style="font-size:11px;color:#a3a3a3">📅 Aug 5 · Afrika Fest Productions</div>
+        </div>
+
+      </div>
+
+      <p style="font-size:11px;color:#737373;margin-top:10px;text-align:center">Showing up to 4 events across categories you've registered for</p>
+    </div>
+
+  </div>
+</div>
+
+<div class="section" style="margin-top:16px">
+  <h3>What's wired up</h3>
+  <ul style="font-size:13px;line-height:2;color:#d4d4d4;padding-left:16px">
+    <li><code>EventsService.getRecommended(excludeEventId)</code> → <code>GET /api/events/recommended?excludeEventId=…</code></li>
+    <li>Section only renders when <code>auth.isAuthenticated()</code> is true <strong>and</strong> the API returns at least 1 result</li>
+    <li>Cards are <code>routerLink</code> to <code>/events/:slug</code> — clicking one navigates and reloads recommendations for the new event</li>
+    <li>No loading spinner needed — section appears silently after main event content loads</li>
+  </ul>
+</div>

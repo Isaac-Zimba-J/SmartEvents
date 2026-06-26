@@ -105,8 +105,11 @@ public class VenuesController(SmartEventsDbContext db) : ControllerBase
     [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)}")]
     public async Task<ActionResult<VenueResponse>> Update(Guid id, UpdateVenueRequest request)
     {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await db.Users.FindAsync(userId);
         var venue = await db.Venues.Include(v => v.Company).FirstOrDefaultAsync(v => v.Id == id);
         if (venue is null) return NotFound();
+        if (user!.Role != UserRole.SuperAdmin && venue.CompanyId != user.CompanyId) return Forbid();
 
         venue.Name = request.Name;
         venue.Description = request.Description;
@@ -131,8 +134,11 @@ public class VenuesController(SmartEventsDbContext db) : ControllerBase
     [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)}")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await db.Users.FindAsync(userId);
         var venue = await db.Venues.FindAsync(id);
         if (venue is null) return NotFound();
+        if (user!.Role != UserRole.SuperAdmin && venue.CompanyId != user.CompanyId) return Forbid();
         venue.IsAvailable = false;
         venue.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();

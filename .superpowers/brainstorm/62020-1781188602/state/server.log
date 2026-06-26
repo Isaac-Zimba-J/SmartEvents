@@ -1,0 +1,4 @@
+{"type":"server-started","port":56507,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:56507","screen_dir":"/Users/zimbadev/Documents/Workspace/Peoples Projects/SmartEvents/.superpowers/brainstorm/62020-1781188602/content","state_dir":"/Users/zimbadev/Documents/Workspace/Peoples Projects/SmartEvents/.superpowers/brainstorm/62020-1781188602/state"}
+{"type":"screen-added","file":"/Users/zimbadev/Documents/Workspace/Peoples Projects/SmartEvents/.superpowers/brainstorm/62020-1781188602/content/venue-detail-layout.html"}
+{"type":"screen-added","file":"/Users/zimbadev/Documents/Workspace/Peoples Projects/SmartEvents/.superpowers/brainstorm/62020-1781188602/content/waiting.html"}
+{"type":"server-stopped","reason":"idle timeout"}

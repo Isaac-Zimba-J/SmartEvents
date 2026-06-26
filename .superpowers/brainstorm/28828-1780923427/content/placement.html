@@ -1,0 +1,90 @@
+<h2>Where should recommendations appear?</h2>
+<p class="subtitle">Pick the placement that feels most natural for "Suggested for you" events</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Dashboard — dedicated section</h3>
+      <p>A "Recommended for you" row on the main dashboard, visible right after login. High visibility, seen every session.</p>
+      <div class="mockup" style="margin-top:10px">
+        <div class="mockup-header">Dashboard</div>
+        <div class="mockup-body" style="padding:12px;font-size:12px">
+          <div style="background:#6366f120;border-radius:6px;padding:8px;margin-bottom:8px">📊 Stats overview</div>
+          <div style="background:#a855f730;border-radius:6px;padding:8px;border:2px solid #a855f7">
+            ✨ <strong>Recommended for you</strong>
+            <div style="display:flex;gap:6px;margin-top:6px">
+              <div style="background:#fff2;border-radius:4px;padding:6px;flex:1;font-size:11px">🏃 Blantyre Fun Run</div>
+              <div style="background:#fff2;border-radius:4px;padding:6px;flex:1;font-size:11px">⚽ Youth Football Cup</div>
+              <div style="background:#fff2;border-radius:4px;padding:6px;flex:1;font-size:11px">🚴 Cycling Weekend</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Events List — top banner</h3>
+      <p>A "Recommended for you" horizontal scroll strip at the top of the browse page, above the full list. Shown only when the user is logged in with registrations.</p>
+      <div class="mockup" style="margin-top:10px">
+        <div class="mockup-header">Browse Events</div>
+        <div class="mockup-body" style="padding:12px;font-size:12px">
+          <div style="background:#a855f730;border-radius:6px;padding:8px;border:2px solid #a855f7;margin-bottom:8px">
+            ✨ <strong>Recommended for you</strong>
+            <div style="display:flex;gap:6px;margin-top:6px">
+              <div style="background:#fff2;border-radius:4px;padding:6px;flex:1;font-size:11px">🏃 Blantyre Fun Run</div>
+              <div style="background:#fff2;border-radius:4px;padding:6px;flex:1;font-size:11px">⚽ Youth Football Cup</div>
+              <div style="background:#fff2;border-radius:4px;padding:6px;flex:1;font-size:11px">🚴 Cycling Weekend</div>
+            </div>
+          </div>
+          <div style="background:#6366f120;border-radius:6px;padding:8px">📋 All events list (paginated, filtered)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Event Detail — "You might also like"</h3>
+      <p>At the bottom of each event's detail page, show related events in the same category. Works for both logged-in and guest users (based on current event's category).</p>
+      <div class="mockup" style="margin-top:10px">
+        <div class="mockup-header">Event Detail — Dev Summit Malawi</div>
+        <div class="mockup-body" style="padding:12px;font-size:12px">
+          <div style="background:#6366f120;border-radius:6px;padding:8px;margin-bottom:8px">📝 Event description, date, venue, register button…</div>
+          <div style="background:#a855f730;border-radius:6px;padding:8px;border:2px solid #a855f7">
+            🔗 <strong>You might also like</strong>
+            <div style="display:flex;gap:6px;margin-top:6px">
+              <div style="background:#fff2;border-radius:4px;padding:6px;flex:1;font-size:11px">🎓 Angular Workshop</div>
+              <div style="background:#fff2;border-radius:4px;padding:6px;flex:1;font-size:11px">🌍 AI in Africa Webinar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="d" onclick="toggleSelect(this)">
+    <div class="letter">D</div>
+    <div class="content">
+      <h3>Both — Dashboard + Events List</h3>
+      <p>Dashboard gets a "Recommended" section, and the Events List also shows a strip above results. Maximum visibility across both main surfaces.</p>
+      <div class="mockup" style="margin-top:10px">
+        <div class="mockup-header">Two surfaces</div>
+        <div class="mockup-body" style="padding:12px;font-size:12px">
+          <div style="display:flex;gap:6px">
+            <div style="flex:1;background:#a855f720;border-radius:6px;padding:6px;border:1px solid #a855f7;font-size:11px">
+              <strong>Dashboard</strong><br/>✨ Recommended row
+            </div>
+            <div style="flex:1;background:#a855f720;border-radius:6px;padding:6px;border:1px solid #a855f7;font-size:11px">
+              <strong>Events List</strong><br/>✨ Top strip
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

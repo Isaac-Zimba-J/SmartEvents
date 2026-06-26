@@ -17,7 +17,8 @@ public record CreateEventRequest(
     bool WaitlistEnabled,
     bool IsPublic,
     string? Tags,
-    Guid? VenueId
+    Guid? VenueId,
+    Guid? CompanyId
 );
 
 public record UpdateEventRequest(

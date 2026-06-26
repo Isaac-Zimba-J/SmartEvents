@@ -34,6 +34,10 @@ export class EventsService {
     return this.http.get<EventSummary[]>(`${this.apiUrl}/company/${companyId}`);
   }
 
+  getManaged() {
+    return this.http.get<EventSummary[]>(`${this.apiUrl}/managed`);
+  }
+
   create(request: CreateEventRequest) {
     return this.http.post<EventSummary>(this.apiUrl, request);
   }

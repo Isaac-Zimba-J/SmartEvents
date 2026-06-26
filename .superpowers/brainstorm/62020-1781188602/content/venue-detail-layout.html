@@ -1,0 +1,94 @@
+<h2>Venue Detail Page Layout</h2>
+<p class="subtitle">Where should the booking form live on the venue detail page?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup" style="margin:0;font-size:11px;">
+        <div class="mockup-header">Venue Detail — Layout A: Sidebar Booking Panel</div>
+        <div class="mockup-body" style="display:grid;grid-template-columns:1fr 280px;gap:12px;padding:10px;">
+          <div>
+            <div style="background:#e8eaed;border-radius:6px;height:140px;display:flex;align-items:center;justify-content:center;color:#888;margin-bottom:10px;">📷 Venue Image</div>
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px;">Grand Convention Centre</div>
+            <div style="color:#666;font-size:10px;margin-bottom:8px;">📍 Lilongwe, Malawi · Indoor · 500 capacity</div>
+            <div style="background:#f5f5f5;border-radius:4px;padding:8px;font-size:10px;color:#555;margin-bottom:8px;">Convention centre with state-of-the-art AV equipment, breakout rooms, and catering facilities...</div>
+            <div style="font-weight:600;font-size:10px;margin-bottom:4px;">Amenities</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+              <span style="background:#e3f2fd;color:#1565c0;border-radius:20px;padding:2px 8px;font-size:9px;">WiFi</span>
+              <span style="background:#e3f2fd;color:#1565c0;border-radius:20px;padding:2px 8px;font-size:9px;">Parking</span>
+              <span style="background:#e3f2fd;color:#1565c0;border-radius:20px;padding:2px 8px;font-size:9px;">AV Equipment</span>
+              <span style="background:#e3f2fd;color:#1565c0;border-radius:20px;padding:2px 8px;font-size:9px;">Catering</span>
+            </div>
+          </div>
+          <div style="background:#f8f9fa;border-radius:8px;padding:12px;border:1.5px solid #dee2e6;">
+            <div style="font-weight:700;font-size:12px;margin-bottom:8px;">Book this Venue</div>
+            <div style="font-size:10px;color:#555;margin-bottom:6px;">K 15,000 / day</div>
+            <div style="font-size:10px;font-weight:500;margin-bottom:2px;">Start Date</div>
+            <div class="mock-input" style="margin-bottom:6px;font-size:10px;">📅 Select date</div>
+            <div style="font-size:10px;font-weight:500;margin-bottom:2px;">End Date</div>
+            <div class="mock-input" style="margin-bottom:6px;font-size:10px;">📅 Select date</div>
+            <div style="font-size:10px;font-weight:500;margin-bottom:2px;">Purpose / Notes</div>
+            <div class="mock-input" style="margin-bottom:8px;font-size:10px;height:36px;">Corporate conference...</div>
+            <div style="background:#f0f4ff;border-radius:4px;padding:6px;font-size:10px;margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;"><span>2 days × K 15,000</span><span style="font-weight:700;">K 30,000</span></div>
+            </div>
+            <button class="mock-button" style="width:100%;font-size:11px;">Book Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Sidebar Panel</h3>
+      <p>Booking form sits in a sticky right-hand sidebar alongside venue details. Always visible, no scrolling needed. Same pattern as many event ticketing sites.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup" style="margin:0;font-size:11px;">
+        <div class="mockup-header">Venue Detail — Layout B: Inline Booking at Bottom</div>
+        <div class="mockup-body" style="padding:10px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <div style="background:#e8eaed;border-radius:6px;height:100px;display:flex;align-items:center;justify-content:center;color:#888;">📷 Image</div>
+            <div>
+              <div style="font-weight:700;font-size:12px;margin-bottom:3px;">Grand Convention Centre</div>
+              <div style="color:#666;font-size:10px;margin-bottom:3px;">📍 Lilongwe · Indoor · 500 cap.</div>
+              <div style="font-size:10px;color:#555;">Convention centre with state-of-the-art AV equipment and breakout rooms...</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">
+            <span style="background:#e3f2fd;color:#1565c0;border-radius:20px;padding:2px 8px;font-size:9px;">WiFi</span>
+            <span style="background:#e3f2fd;color:#1565c0;border-radius:20px;padding:2px 8px;font-size:9px;">Parking</span>
+            <span style="background:#e3f2fd;color:#1565c0;border-radius:20px;padding:2px 8px;font-size:9px;">AV Equipment</span>
+          </div>
+          <div style="border-top:1.5px solid #dee2e6;padding-top:10px;">
+            <div style="font-weight:700;font-size:12px;margin-bottom:6px;">📅 Book this Venue — K 15,000/day</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;">
+              <div>
+                <div style="font-size:9px;font-weight:500;margin-bottom:2px;">Start Date</div>
+                <div class="mock-input" style="font-size:10px;">📅 Date</div>
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:500;margin-bottom:2px;">End Date</div>
+                <div class="mock-input" style="font-size:10px;">📅 Date</div>
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:500;margin-bottom:2px;">Total</div>
+                <div style="font-weight:700;font-size:12px;color:#2563eb;margin-top:6px;">K 30,000</div>
+              </div>
+            </div>
+            <div style="font-size:9px;font-weight:500;margin-bottom:2px;">Purpose / Notes</div>
+            <div class="mock-input" style="margin-bottom:8px;font-size:10px;">Corporate conference...</div>
+            <button class="mock-button" style="font-size:11px;">Book & Pay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Inline at Bottom</h3>
+      <p>Details up top, booking form below after a divider. Single-column, works great on mobile. User scrolls through the venue info then books.</p>
+    </div>
+  </div>
+
+</div>

@@ -76,6 +76,7 @@ if (app.Environment.IsDevelopment())
     var db = scope.ServiceProvider.GetRequiredService<SmartEventsDbContext>();
     db.Database.Migrate();
     await DbSeeder.SeedAsync(db);
+    await DbSeeder.PatchAsync(db);
 
     app.MapOpenApi();
     app.MapScalarApiReference(options =>

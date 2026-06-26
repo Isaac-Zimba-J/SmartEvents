@@ -24,14 +24,7 @@ export class OrganizerDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const companyId = this.auth.currentUser()?.companyId;
-    if (!companyId) {
-      this.toast.error('Your account is not linked to a company.');
-      this.loading = false;
-      return;
-    }
-
-    this.eventsService.getByCompany(companyId).subscribe({
+    this.eventsService.getManaged().subscribe({
       next: data => { this.events = data; this.loading = false; },
       error: () => {
         this.toast.error('Failed to load events.');

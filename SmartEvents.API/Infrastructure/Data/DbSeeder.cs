@@ -9,6 +9,90 @@ public static class DbSeeder
     // All seeded accounts share this password
     public const string DefaultPassword = "Seed1234!";
 
+    // Runs on every startup after the main seed — patches existing databases with new events/data
+    public static async Task PatchAsync(SmartEventsDbContext db)
+    {
+        var now = DateTime.UtcNow;
+        var eventIds = new[]
+        {
+            Guid.Parse("a1b2c3d4-e5f6-7890-abcd-ef1234567890"), // Women in Tech Summit
+            Guid.Parse("b2c3d4e5-f6a7-8901-bcde-f12345678901"), // Cloud East Africa
+            Guid.Parse("c3d4e5f6-a7b8-9012-cdef-123456789012")  // AfrikaFest Exhibition
+        };
+
+        // Only patch if the new events are missing
+        if (await db.Events.AnyAsync(e => eventIds.Contains(e.Id))) return;
+
+        var techCo   = await db.Companies.FirstOrDefaultAsync(c => c.Slug == "techevents-co");
+        var afrikaFest = await db.Companies.FirstOrDefaultAsync(c => c.Slug == "afrika-fest");
+        var organizer1 = await db.Users.FirstOrDefaultAsync(u => u.Email == "organizer@techevents.co");
+        var organizer2 = await db.Users.FirstOrDefaultAsync(u => u.Email == "organizer@afrikafest.co");
+        var attendee   = await db.Users.FirstOrDefaultAsync(u => u.Email == "attendee@example.com");
+        var bicc       = await db.Venues.FirstOrDefaultAsync(v => v.Name.Contains("BICC") || v.Name.Contains("International Conference"));
+        var sunbird    = await db.Venues.FirstOrDefaultAsync(v => v.Name.Contains("Sunbird"));
+        var amphitheatre = await db.Venues.FirstOrDefaultAsync(v => v.Name.Contains("Amphitheatre") || v.Name.Contains("Kamuzu"));
+
+        if (techCo is null || afrikaFest is null || organizer1 is null || organizer2 is null) return;
+
+        var events = new List<Event>
+        {
+            new()
+            {
+                Id = eventIds[0], Title = "Women in Tech Summit Malawi",
+                Slug = "women-in-tech-summit-malawi",
+                Description = "A transformative conference celebrating women in technology across Malawi.",
+                Category = EventCategory.Conference, Status = EventStatus.Published,
+                StartDate = now.AddDays(90), EndDate = now.AddDays(91),
+                Timezone = "Africa/Blantyre", MaxAttendees = 200,
+                IsTicketed = true, TicketPrice = 5000, WaitlistEnabled = true, IsPublic = true,
+                Tags = "women,tech,diversity,stem,conference",
+                CompanyId = afrikaFest.Id, VenueId = bicc?.Id, OrganizerId = organizer2.Id
+            },
+            new()
+            {
+                Id = eventIds[1], Title = "Cloud East Africa Conference 2026",
+                Slug = "cloud-east-africa-conference-2026",
+                Description = "The definitive cloud computing conference for East Africa.",
+                Category = EventCategory.Conference, Status = EventStatus.Published,
+                StartDate = now.AddDays(120), EndDate = now.AddDays(121),
+                Timezone = "Africa/Blantyre", MaxAttendees = 300,
+                IsTicketed = true, TicketPrice = 9500, WaitlistEnabled = true, IsPublic = true,
+                Tags = "cloud,aws,azure,devops,infrastructure",
+                CompanyId = techCo.Id, VenueId = sunbird?.Id, OrganizerId = organizer1.Id
+            },
+            new()
+            {
+                Id = eventIds[2], Title = "AfrikaFest Cultural Exhibition 2026",
+                Slug = "afrikafest-cultural-exhibition-2026",
+                Description = "A vibrant showcase of African art, crafts, fashion, and heritage.",
+                Category = EventCategory.Exhibition, Status = EventStatus.Published,
+                StartDate = now.AddDays(75), EndDate = now.AddDays(77),
+                Timezone = "Africa/Blantyre", MaxAttendees = 150,
+                IsTicketed = true, TicketPrice = 3000, WaitlistEnabled = false, IsPublic = true,
+                Tags = "culture,art,crafts,heritage,africa",
+                CompanyId = afrikaFest.Id, VenueId = amphitheatre?.Id, OrganizerId = organizer2.Id
+            }
+        };
+
+        db.Events.AddRange(events);
+
+        // Seed a registration for the attendee so recommendations have category data
+        if (attendee is not null)
+        {
+            var devSummit = await db.Events.FirstOrDefaultAsync(e => e.Slug == "dev-summit-malawi-2026");
+            if (devSummit is not null && !await db.Registrations.AnyAsync(r => r.UserId == attendee.Id && r.EventId == devSummit.Id))
+            {
+                db.Registrations.Add(new Registration
+                {
+                    Id = Guid.NewGuid(), EventId = devSummit.Id, UserId = attendee.Id,
+                    Status = RegistrationStatus.Confirmed, RegisteredAt = now.AddDays(-10)
+                });
+            }
+        }
+
+        await db.SaveChangesAsync();
+    }
+
     public static async Task SeedAsync(SmartEventsDbContext db)
     {
         // Idempotent — bail out if any user already exists
@@ -411,6 +495,18 @@ public static class DbSeeder
 
         db.Events.AddRange(devSummit, angularWorkshop, afrikaFestConcert, networkingBrunch, aiWebinar, startupExpo,
             womenInTechSummit, cloudEastAfricaConf, afrikaFestExhibition);
+
+        // Seed one registration for the attendee so recommendations can derive interest categories
+        var devSummitReg = new Registration
+        {
+            Id           = Guid.NewGuid(),
+            EventId      = devSummit.Id,
+            UserId       = attendee.Id,
+            Status       = RegistrationStatus.Confirmed,
+            RegisteredAt = now.AddDays(-10)
+        };
+
+        db.Registrations.Add(devSummitReg);
 
         await db.SaveChangesAsync();
     }

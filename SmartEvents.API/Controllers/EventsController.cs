@@ -126,6 +126,31 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
         return Ok(events.Select(ToSummary));
     }
 
+    [HttpGet("managed")]
+    [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)},{nameof(UserRole.Organizer)}")]
+    public async Task<ActionResult<IEnumerable<EventSummaryResponse>>> GetManaged()
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await db.Users.FindAsync(userId);
+        if (user is null) return Unauthorized();
+
+        var query = db.Events
+            .Include(e => e.Company)
+            .Include(e => e.Venue)
+            .Include(e => e.Organizer)
+            .Include(e => e.Registrations)
+            .AsQueryable();
+
+        if (user.Role != UserRole.SuperAdmin)
+        {
+            if (user.CompanyId is null) return Ok(Array.Empty<EventSummaryResponse>());
+            query = query.Where(e => e.CompanyId == user.CompanyId);
+        }
+
+        var events = await query.OrderByDescending(e => e.StartDate).ToListAsync();
+        return Ok(events.Select(ToSummary));
+    }
+
     [HttpPost]
     [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)},{nameof(UserRole.Organizer)}")]
     public async Task<ActionResult<EventSummaryResponse>> Create(CreateEventRequest request)
@@ -134,7 +159,17 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
         var user = await db.Users.FindAsync(userId);
         if (user is null) return Unauthorized();
 
-        var companyId = user.CompanyId;
+        Guid? companyId;
+        if (user.Role == UserRole.SuperAdmin)
+        {
+            if (request.CompanyId is null)
+                return BadRequest(new { message = "SuperAdmin must specify a company for the event." });
+            companyId = request.CompanyId;
+        }
+        else
+        {
+            companyId = user.CompanyId;
+        }
         if (companyId is null) return BadRequest(new { message = "User must belong to a company to create events." });
 
         if (request.StartDate >= request.EndDate)
@@ -188,6 +223,10 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
     [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)},{nameof(UserRole.Organizer)}")]
     public async Task<ActionResult<EventSummaryResponse>> Update(Guid id, UpdateEventRequest request)
     {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await db.Users.FindAsync(userId);
+        if (user is null) return Unauthorized();
+
         var ev = await db.Events
             .Include(e => e.Company)
             .Include(e => e.Venue)
@@ -196,6 +235,9 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
             .FirstOrDefaultAsync(e => e.Id == id);
 
         if (ev is null) return NotFound();
+
+        if (user.Role != UserRole.SuperAdmin && ev.CompanyId != user.CompanyId)
+            return Forbid();
 
         if (request.StartDate >= request.EndDate)
             return BadRequest(new { message = "End date must be after start date." });
@@ -225,8 +267,11 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
     [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)}")]
     public async Task<IActionResult> Publish(Guid id)
     {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await db.Users.FindAsync(userId);
         var ev = await db.Events.FindAsync(id);
         if (ev is null) return NotFound();
+        if (user!.Role != UserRole.SuperAdmin && ev.CompanyId != user.CompanyId) return Forbid();
         ev.Status = EventStatus.Published;
         ev.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
@@ -237,8 +282,11 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
     [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)}")]
     public async Task<IActionResult> Cancel(Guid id)
     {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await db.Users.FindAsync(userId);
         var ev = await db.Events.FindAsync(id);
         if (ev is null) return NotFound();
+        if (user!.Role != UserRole.SuperAdmin && ev.CompanyId != user.CompanyId) return Forbid();
         ev.Status = EventStatus.Cancelled;
         ev.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
@@ -249,8 +297,11 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
     [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)},{nameof(UserRole.CompanyAdmin)}")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await db.Users.FindAsync(userId);
         var ev = await db.Events.FindAsync(id);
         if (ev is null) return NotFound();
+        if (user!.Role != UserRole.SuperAdmin && ev.CompanyId != user.CompanyId) return Forbid();
         db.Events.Remove(ev);
         await db.SaveChangesAsync();
         return NoContent();

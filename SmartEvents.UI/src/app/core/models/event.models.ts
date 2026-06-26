@@ -73,4 +73,5 @@ export interface CreateEventRequest {
   isPublic: boolean;
   tags?: string;
   venueId?: string;
+  companyId?: string;
 }

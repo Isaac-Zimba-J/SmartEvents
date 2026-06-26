@@ -4,7 +4,10 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { EventsService } from '../../../core/services/events.service';
 import { VenuesService } from '../../../core/services/venues.service';
+import { CompaniesService } from '../../../core/services/companies.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Venue } from '../../../core/models/venue.models';
+import { Company } from '../../../core/models/company.models';
 import { EventCategory } from '../../../core/models/event.models';
 
 @Component({
@@ -18,6 +21,7 @@ export class CreateEventComponent implements OnInit {
   loading = false;
   error = '';
   venues: Venue[] = [];
+  companies: Company[] = [];
 
   readonly categories: EventCategory[] = [
     'Conference', 'Workshop', 'Concert', 'Exhibition',
@@ -28,6 +32,8 @@ export class CreateEventComponent implements OnInit {
     private fb: FormBuilder,
     private eventsService: EventsService,
     private venuesService: VenuesService,
+    private companiesService: CompaniesService,
+    public auth: AuthService,
     private router: Router
   ) {
     this.form = this.fb.group({
@@ -44,8 +50,13 @@ export class CreateEventComponent implements OnInit {
       waitlistEnabled: [true],
       isPublic: [true],
       tags: [''],
-      venueId: ['']
+      venueId: [''],
+      companyId: ['']
     });
+  }
+
+  get isSuperAdmin(): boolean {
+    return this.auth.currentUser()?.role === 'SuperAdmin';
   }
 
   ngOnInit(): void {
@@ -53,6 +64,13 @@ export class CreateEventComponent implements OnInit {
       next: venues => { this.venues = venues; },
       error: () => {}
     });
+
+    if (this.isSuperAdmin) {
+      this.companiesService.getAll().subscribe({
+        next: companies => { this.companies = companies; },
+        error: () => {}
+      });
+    }
   }
 
   get isTicketed(): boolean {
@@ -68,7 +86,8 @@ export class CreateEventComponent implements OnInit {
     const request = {
       ...value,
       ticketPrice: this.isTicketed ? value.ticketPrice : 0,
-      venueId: value.venueId || undefined
+      venueId: value.venueId || undefined,
+      companyId: value.companyId || undefined
     };
 
     this.eventsService.create(request).subscribe({
