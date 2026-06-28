@@ -1,0 +1,42 @@
+<div class="page-container">
+  <div class="page-header">
+    <a routerLink="/dashboard" class="back-link">
+      <lucide-icon name="ArrowLeft" [size]="16" /> Back to Dashboard
+    </a>
+    <h1>Notifications</h1>
+    <p class="page-sub">Your notification history — emails and messages sent to you.</p>
+  </div>
+
+  @if (loading) {
+    <p class="loading-text">Loading notifications...</p>
+  } @else if (error) {
+    <p class="error">{{ error }}</p>
+  } @else if (notifications.length === 0) {
+    <div class="empty-state">
+      <lucide-icon name="Bell" [size]="48" class="empty-icon" />
+      <p>No notifications yet.</p>
+    </div>
+  } @else {
+    <div class="notifications-list">
+      @for (n of notifications; track n.id) {
+        <div class="notification-card" [class.not-sent]="!n.isSent">
+          <div class="notif-icon">
+            <lucide-icon [name]="iconFor(n.type)" [size]="18" />
+          </div>
+          <div class="notif-body">
+            <div class="notif-header">
+              <span class="notif-event">{{ eventLabel(n.event) }}</span>
+              <span class="notif-type-badge">{{ n.type }}</span>
+              @if (!n.isSent) {
+                <span class="notif-failed-badge">Failed</span>
+              }
+            </div>
+            <p class="notif-subject">{{ n.subject }}</p>
+            <p class="notif-message">{{ n.body }}</p>
+            <span class="notif-date">{{ formatDate(n.createdAt) }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

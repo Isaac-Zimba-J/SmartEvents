@@ -18,6 +18,7 @@ public record CreateEventRequest(
     bool IsPublic,
     string? Tags,
     Guid? VenueId,
+    string? VenueText,
     Guid? CompanyId
 );
 
@@ -36,6 +37,7 @@ public record UpdateEventRequest(
     bool IsPublic,
     string? Tags,
     Guid? VenueId,
+    string? VenueText,
     EventStatus Status
 );
 
@@ -59,6 +61,7 @@ public record EventSummaryResponse(
     Guid CompanyId,
     string CompanyName,
     VenueResponse? Venue,
+    string? VenueText,
     string OrganizerName,
     DateTime CreatedAt
 );
@@ -85,6 +88,7 @@ public record EventDetailResponse(
     Guid CompanyId,
     string CompanyName,
     VenueResponse? Venue,
+    string? VenueText,
     string OrganizerName,
     DateTime CreatedAt
 );

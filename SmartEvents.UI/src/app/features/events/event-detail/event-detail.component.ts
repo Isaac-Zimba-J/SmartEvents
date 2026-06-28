@@ -49,12 +49,10 @@ export class EventDetailComponent implements OnInit {
       next: data => {
         this.event = data;
         this.loading = false;
-        if (this.auth.isAuthenticated()) {
-          this.eventsService.getRecommended(data.id).subscribe({
-            next: recs => { this.recommendations = recs; },
-            error: () => {}
-          });
-        }
+        this.eventsService.getRecommended(data.id, data.category).subscribe({
+          next: recs => { this.recommendations = recs; },
+          error: () => {}
+        });
       },
       error: () => { this.loading = false; }
     });

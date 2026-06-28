@@ -45,7 +45,7 @@
             }
             <p class="company">by {{ event.companyName }}</p>
             <div class="event-card-footer">
-              <span class="price">{{ event.isTicketed ? (event.ticketPrice | currency) : 'Free' }}</span>
+              <span class="price">{{ event.isTicketed ? 'K ' + (event.ticketPrice | number:'1.0-0') : 'Free' }}</span>
               <span class="spots">
                 {{ event.maxAttendees - event.registeredCount }} spots left
               </span>

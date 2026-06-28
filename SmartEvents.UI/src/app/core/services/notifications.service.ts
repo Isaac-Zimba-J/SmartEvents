@@ -1,4 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
@@ -11,11 +12,31 @@ export interface SignalRNotification {
   data?: Record<string, unknown>;
 }
 
+export interface NotificationRecord {
+  id: string;
+  type: 'Email' | 'SMS' | 'Push';
+  event: string;
+  subject: string;
+  body: string;
+  isSent: boolean;
+  createdAt: string;
+  sentAt?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class NotificationsService implements OnDestroy {
   private connection: signalR.HubConnection | null = null;
+  private readonly apiUrl = `${environment.apiUrl}/notifications`;
 
-  constructor(private authService: AuthService, private toast: ToastService) {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private toast: ToastService
+  ) {}
+
+  getHistory() {
+    return this.http.get<NotificationRecord[]>(this.apiUrl);
+  }
 
   connect(): void {
     if (this.connection) return;

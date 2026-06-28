@@ -73,12 +73,19 @@
       <div class="field">
         <label>Venue</label>
         <select formControlName="venueId">
-          <option value="">— No venue selected —</option>
+          <option value="">— No venue / type your own below —</option>
           @for (venue of venues; track venue.id) {
             <option [value]="venue.id">{{ venue.name }} — {{ venue.city }}, {{ venue.country }}</option>
           }
         </select>
       </div>
+
+      @if (!venueSelected) {
+        <div class="field">
+          <label>Custom Venue Name</label>
+          <input type="text" formControlName="venueText" placeholder="e.g. Bingu International Convention Centre, Lilongwe" />
+        </div>
+      }
     </div>
 
     <div class="form-section">

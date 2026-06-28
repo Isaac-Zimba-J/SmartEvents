@@ -37,7 +37,7 @@
             <p class="address">{{ venue.address }}</p>
             <p class="capacity">Capacity: {{ venue.capacity | number }}</p>
             @if (venue.pricePerDay) {
-              <p class="price">{{ venue.pricePerDay | currency:'ZMW':'symbol-narrow' }} / day</p>
+              <p class="price">K {{ venue.pricePerDay | number:'1.0-0' }} / day</p>
             } @else {
               <p class="price">Price on request</p>
             }

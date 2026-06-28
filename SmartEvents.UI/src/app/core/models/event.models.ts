@@ -41,6 +41,7 @@ export interface EventSummary {
   companyId: string;
   companyName: string;
   venue?: VenueResponse;
+  venueText?: string;
   organizerName: string;
   createdAt: string;
 }
@@ -73,5 +74,6 @@ export interface CreateEventRequest {
   isPublic: boolean;
   tags?: string;
   venueId?: string;
+  venueText?: string;
   companyId?: string;
 }

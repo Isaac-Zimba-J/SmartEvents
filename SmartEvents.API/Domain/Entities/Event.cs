@@ -28,6 +28,7 @@ public class Event
 
     public Guid? VenueId { get; set; }
     public Venue? Venue { get; set; }
+    public string? VenueText { get; set; }
 
     public Guid OrganizerId { get; set; }
     public User Organizer { get; set; } = null!;

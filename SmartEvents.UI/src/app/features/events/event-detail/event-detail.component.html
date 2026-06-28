@@ -40,7 +40,7 @@
 
       <div class="event-sidebar">
         <div class="registration-card">
-          <p class="price">{{ event.isTicketed ? (event.ticketPrice | currency:'ZMW':'symbol-narrow') : 'Free' }}</p>
+          <p class="price">{{ event.isTicketed ? 'K ' + (event.ticketPrice | number:'1.0-0') : 'Free' }}</p>
           <p class="spots">
             @if (isFull && event.waitlistEnabled) {
               Event is full — waitlist available
@@ -80,7 +80,7 @@
                   (click)="openCheckout()"
                   [disabled]="isFull && !event.waitlistEnabled"
                 >
-                  Buy Ticket — {{ event.ticketPrice | currency:'ZMW':'symbol-narrow' }}
+                  Buy Ticket — K {{ event.ticketPrice | number:'1.0-0' }}
                 </button>
               }
 
@@ -88,7 +88,7 @@
                 <!-- Mock checkout panel -->
                 <div class="checkout-panel">
                   <h3>Checkout</h3>
-                  <p class="checkout-amount">Total: <strong>{{ event.ticketPrice | currency:'ZMW':'symbol-narrow' }}</strong></p>
+                  <p class="checkout-amount">Total: <strong>K {{ event.ticketPrice | number:'1.0-0' }}</strong></p>
 
                   <div class="field">
                     <label>Payment Method</label>
@@ -163,7 +163,7 @@
               <span class="badge">{{ rec.category }}</span>
               <p class="rec-title">{{ rec.title }}</p>
               <p class="rec-meta">{{ rec.startDate | date:'mediumDate' }} · {{ rec.companyName }}</p>
-              <p class="rec-price">{{ rec.isTicketed ? (rec.ticketPrice | currency:'ZMW':'symbol-narrow') : 'Free' }}</p>
+              <p class="rec-price">{{ rec.isTicketed ? 'K ' + (rec.ticketPrice | number:'1.0-0') : 'Free' }}</p>
             </a>
           }
         </div>

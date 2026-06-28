@@ -21,7 +21,7 @@
       </div>
       <div class="stat-card">
         <span class="stat-label">Revenue</span>
-        <span class="stat-value">{{ overview.totalRevenue | currency:'ZMW':'symbol-narrow' }}</span>
+        <span class="stat-value">K {{ overview.totalRevenue | number:'1.0-0' }}</span>
       </div>
       @if (overview.totalUsers > 0) {
         <div class="stat-card">
@@ -71,7 +71,7 @@
               <td>{{ stat.checkedIn }}</td>
               <td>{{ stat.waitlisted }}</td>
               <td>{{ stat.cancelled }}</td>
-              <td>{{ stat.revenue | currency:'ZMW':'symbol-narrow' }}</td>
+              <td>K {{ stat.revenue | number:'1.0-0' }}</td>
             </tr>
           }
         </tbody>

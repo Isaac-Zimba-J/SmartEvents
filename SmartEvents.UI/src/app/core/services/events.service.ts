@@ -58,9 +58,10 @@ export class EventsService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  getRecommended(excludeEventId?: string) {
+  getRecommended(excludeEventId?: string, category?: string) {
     let httpParams = new HttpParams();
     if (excludeEventId) httpParams = httpParams.set('excludeEventId', excludeEventId);
+    if (category) httpParams = httpParams.set('category', category);
     return this.http.get<EventSummary[]>(`${this.apiUrl}/recommended`, { params: httpParams });
   }
 }

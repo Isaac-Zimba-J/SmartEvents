@@ -51,6 +51,7 @@ export class CreateEventComponent implements OnInit {
       isPublic: [true],
       tags: [''],
       venueId: [''],
+      venueText: [''],
       companyId: ['']
     });
   }
@@ -77,6 +78,10 @@ export class CreateEventComponent implements OnInit {
     return this.form.get('isTicketed')?.value === true;
   }
 
+  get venueSelected(): boolean {
+    return !!this.form.get('venueId')?.value;
+  }
+
   submit(): void {
     if (this.form.invalid) return;
     this.loading = true;
@@ -87,6 +92,7 @@ export class CreateEventComponent implements OnInit {
       ...value,
       ticketPrice: this.isTicketed ? value.ticketPrice : 0,
       venueId: value.venueId || undefined,
+      venueText: value.venueId ? undefined : (value.venueText || undefined),
       companyId: value.companyId || undefined
     };
 

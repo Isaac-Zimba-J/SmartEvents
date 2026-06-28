@@ -56,28 +56,12 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
     }
 
     [HttpGet("recommended")]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<EventSummaryResponse>>> GetRecommended(
-        [FromQuery] Guid? excludeEventId = null)
+        [FromQuery] Guid? excludeEventId = null,
+        [FromQuery] EventCategory? category = null)
     {
-        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-        var categories = await db.Registrations
-            .Where(r => r.UserId == userId &&
-                        (r.Status == RegistrationStatus.Confirmed ||
-                         r.Status == RegistrationStatus.Waitlisted))
-            .Select(r => r.Event.Category)
-            .Distinct()
-            .ToListAsync();
-
-        if (categories.Count == 0)
-            return Ok(Array.Empty<EventSummaryResponse>());
-
-        var registeredEventIds = db.Registrations
-            .Where(r => r.UserId == userId && r.Status != RegistrationStatus.Cancelled)
-            .Select(r => r.EventId);
-
-        var events = await db.Events
+        var query = db.Events
             .Include(e => e.Company)
             .Include(e => e.Venue)
             .Include(e => e.Organizer)
@@ -85,13 +69,12 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
             .Where(e => e.Status == EventStatus.Published
                      && e.IsPublic
                      && e.StartDate >= DateTime.UtcNow
-                     && categories.Contains(e.Category)
-                     && !registeredEventIds.Contains(e.Id)
-                     && (excludeEventId == null || e.Id != excludeEventId.Value))
-            .OrderBy(e => e.StartDate)
-            .Take(4)
-            .ToListAsync();
+                     && (excludeEventId == null || e.Id != excludeEventId.Value));
 
+        if (category.HasValue)
+            query = query.Where(e => e.Category == category.Value);
+
+        var events = await query.OrderBy(e => e.StartDate).Take(4).ToListAsync();
         return Ok(events.Select(ToSummary));
     }
 
@@ -205,6 +188,7 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
             Tags = request.Tags,
             CompanyId = companyId.Value,
             VenueId = request.VenueId,
+            VenueText = request.VenueId.HasValue ? null : request.VenueText,
             OrganizerId = userId
         };
 
@@ -257,6 +241,7 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
         ev.IsPublic = request.IsPublic;
         ev.Tags = request.Tags;
         ev.VenueId = request.VenueId;
+        ev.VenueText = request.VenueId.HasValue ? null : request.VenueText;
         ev.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
@@ -320,7 +305,7 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
         e.Registrations.Count(r => r.Status == RegistrationStatus.Confirmed),
         e.IsTicketed, e.TicketPrice, e.WaitlistEnabled, e.IsPublic, e.Tags,
         e.CompanyId, e.Company?.Name ?? string.Empty,
-        ToVenueResponse(e.Venue),
+        ToVenueResponse(e.Venue), e.VenueText,
         $"{e.Organizer?.FirstName} {e.Organizer?.LastName}".Trim(),
         e.CreatedAt
     );
@@ -332,7 +317,7 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
         e.Registrations.Count(r => r.Status == RegistrationStatus.Waitlisted),
         e.IsTicketed, e.TicketPrice, e.WaitlistEnabled, e.IsPublic, e.Tags,
         e.CompanyId, e.Company?.Name ?? string.Empty,
-        ToVenueResponse(e.Venue),
+        ToVenueResponse(e.Venue), e.VenueText,
         $"{e.Organizer?.FirstName} {e.Organizer?.LastName}".Trim(),
         e.CreatedAt
     );

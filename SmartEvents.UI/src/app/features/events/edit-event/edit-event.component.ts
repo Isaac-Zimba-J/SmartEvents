@@ -50,7 +50,8 @@ export class EditEventComponent implements OnInit {
       waitlistEnabled: [true],
       isPublic: [true],
       tags: [''],
-      venueId: ['']
+      venueId: [''],
+      venueText: ['']
     });
   }
 
@@ -77,7 +78,8 @@ export class EditEventComponent implements OnInit {
           waitlistEnabled: event.waitlistEnabled,
           isPublic: event.isPublic,
           tags: event.tags ?? '',
-          venueId: event.venue?.id ?? ''
+          venueId: event.venue?.id ?? '',
+          venueText: event.venueText ?? ''
         });
         this.loading = false;
       },
@@ -92,6 +94,10 @@ export class EditEventComponent implements OnInit {
     return this.form.get('isTicketed')?.value === true;
   }
 
+  get venueSelected(): boolean {
+    return !!this.form.get('venueId')?.value;
+  }
+
   submit(): void {
     if (this.form.invalid || !this.event) return;
     this.saving = true;
@@ -101,7 +107,8 @@ export class EditEventComponent implements OnInit {
     const request = {
       ...value,
       ticketPrice: this.isTicketed ? value.ticketPrice : 0,
-      venueId: value.venueId || undefined
+      venueId: value.venueId || undefined,
+      venueText: value.venueId ? undefined : (value.venueText || undefined)
     };
 
     this.eventsService.update(this.event.id, request).subscribe({
