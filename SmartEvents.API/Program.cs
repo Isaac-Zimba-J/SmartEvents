@@ -58,6 +58,12 @@ builder.Services.AddScoped<ISmsService, SmsService>();
 builder.Services.AddSingleton<IQrCodeService, QrCodeService>();
 builder.Services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
 
+// HTTP clients
+builder.Services.AddHttpClient("PawaPay");
+
+// PawaPay
+builder.Services.AddScoped<IPawaPayService, PawaPayService>();
+
 // SignalR
 builder.Services.AddSignalR();
 
