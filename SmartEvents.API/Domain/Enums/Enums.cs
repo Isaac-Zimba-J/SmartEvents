@@ -47,7 +47,6 @@ public enum PaymentStatus
 
 public enum PaymentMethod
 {
-    Stripe,
     AirtelMoney,
     MTNMoMo,
     Free

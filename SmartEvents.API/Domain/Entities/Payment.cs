@@ -11,6 +11,7 @@ public class Payment
     public PaymentMethod Method { get; set; }
     public string? TransactionReference { get; set; }
     public string? GatewayResponse { get; set; }
+    public string? PawaPayDepositId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? PaidAt { get; set; }
 
