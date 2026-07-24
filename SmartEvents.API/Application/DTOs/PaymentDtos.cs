@@ -6,6 +6,7 @@ namespace SmartEvents.API.Application.DTOs;
 public record PaymentCheckoutRequest(
     [Required] Guid EventId,
     PaymentMethod PaymentMethod,
+    [Required, MaxLength(20)] string PhoneNumber,
     string? Notes
 );
 
@@ -16,6 +17,13 @@ public record PaymentCheckoutResponse(
     PaymentStatus Status,
     PaymentMethod Method,
     RegistrationResponse Registration
+);
+
+public record PaymentStatusResponse(
+    Guid PaymentId,
+    PaymentStatus Status,
+    string? TransactionReference,
+    DateTime? PaidAt
 );
 
 public record PaymentSummaryResponse(

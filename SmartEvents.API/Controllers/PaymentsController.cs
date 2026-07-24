@@ -13,17 +13,29 @@ namespace SmartEvents.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class PaymentsController(SmartEventsDbContext db, IQrCodeService qrCodeService) : ControllerBase
+public class PaymentsController(
+    SmartEventsDbContext db,
+    IQrCodeService qrCodeService,
+    IPawaPayService pawaPayService) : ControllerBase
 {
-    /// <summary>
-    /// Mock checkout — always succeeds. Creates registration + ticket + payment in one step.
-    /// </summary>
+    private static readonly Dictionary<PaymentMethod, string> CorrespondentMap = new()
+    {
+        [PaymentMethod.AirtelMoney] = "AIRTEL_ZAMBIA",
+        [PaymentMethod.MTNMoMo] = "MTN_ZAMBIA"
+    };
+
     [HttpPost("checkout")]
     public async Task<ActionResult<PaymentCheckoutResponse>> Checkout(PaymentCheckoutRequest request)
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var user = await db.Users.FindAsync(userId);
         if (user is null) return Unauthorized();
+
+        if (request.PaymentMethod == PaymentMethod.Free)
+            return BadRequest(new { message = "Use /api/registrations for free events." });
+
+        if (!CorrespondentMap.TryGetValue(request.PaymentMethod, out var correspondent))
+            return BadRequest(new { message = "Unsupported payment method." });
 
         var ev = await db.Events
             .Include(e => e.Registrations)
@@ -44,12 +56,13 @@ public class PaymentsController(SmartEventsDbContext db, IQrCodeService qrCodeSe
         if (confirmedCount >= ev.MaxAttendees && !ev.WaitlistEnabled)
             return BadRequest(new { message = "Event is full and waitlist is disabled." });
 
+        // Optimistic: create registration + ticket as Pending before calling PawaPay
         var registration = new Registration
         {
             Id = Guid.NewGuid(),
             EventId = request.EventId,
             UserId = userId,
-            Status = RegistrationStatus.Confirmed,
+            Status = RegistrationStatus.Pending,
             WaitlistPosition = 0,
             Notes = request.Notes
         };
@@ -66,25 +79,40 @@ public class PaymentsController(SmartEventsDbContext db, IQrCodeService qrCodeSe
         };
         db.Tickets.Add(ticket);
 
+        var depositId = Guid.NewGuid().ToString();
         var payment = new Payment
         {
             Id = Guid.NewGuid(),
             Amount = ev.TicketPrice,
             Currency = "ZMW",
-            Status = PaymentStatus.Completed,
+            Status = PaymentStatus.Pending,
             Method = request.PaymentMethod,
-            TransactionReference = $"MOCK-{Guid.NewGuid().ToString("N")[..12].ToUpper()}",
-            GatewayResponse = "mock_payment_succeeded",
-            PaidAt = DateTime.UtcNow,
+            PawaPayDepositId = depositId,
             RegistrationId = registration.Id
         };
         db.Payments.Add(payment);
 
         await db.SaveChangesAsync();
 
+        // Initiate PawaPay deposit — failure is non-fatal so frontend polling can still resolve it
+        try
+        {
+            await pawaPayService.InitiateDepositAsync(
+                depositId,
+                ev.TicketPrice,
+                "ZMW",
+                correspondent,
+                request.PhoneNumber
+            );
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"PawaPay initiation warning: {ex.Message}");
+        }
+
         return Ok(new PaymentCheckoutResponse(
             payment.Id,
-            payment.TransactionReference!,
+            depositId,
             payment.Amount,
             payment.Status,
             payment.Method,
@@ -102,6 +130,54 @@ public class PaymentsController(SmartEventsDbContext db, IQrCodeService qrCodeSe
                 new TicketResponse(ticket.Id, ticket.TicketNumber, ticket.QrCode, ticket.IsUsed, ticket.IssuedAt)
             )
         ));
+    }
+
+    [HttpGet("{id:guid}/status")]
+    public async Task<ActionResult<PaymentStatusResponse>> GetStatus(Guid id)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var payment = await db.Payments
+            .Include(p => p.Registration)
+            .FirstOrDefaultAsync(p => p.Id == id && p.Registration.UserId == userId);
+
+        if (payment is null) return NotFound(new { message = "Payment not found." });
+
+        // Return cached status if already terminal
+        if (payment.Status is PaymentStatus.Completed or PaymentStatus.Failed)
+            return Ok(new PaymentStatusResponse(payment.Id, payment.Status, payment.TransactionReference, payment.PaidAt));
+
+        // Poll PawaPay for current status
+        if (payment.PawaPayDepositId is not null)
+        {
+            try
+            {
+                var remote = await pawaPayService.GetDepositStatusAsync(payment.PawaPayDepositId);
+
+                if (remote.Status == "COMPLETED")
+                {
+                    payment.Status = PaymentStatus.Completed;
+                    payment.TransactionReference = payment.PawaPayDepositId;
+                    payment.GatewayResponse = remote.Status;
+                    payment.PaidAt = DateTime.UtcNow;
+                    payment.Registration.Status = RegistrationStatus.Confirmed;
+                    await db.SaveChangesAsync();
+                }
+                else if (remote.Status == "FAILED")
+                {
+                    payment.Status = PaymentStatus.Failed;
+                    payment.GatewayResponse = remote.Status;
+                    payment.Registration.Status = RegistrationStatus.Cancelled;
+                    await db.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"PawaPay status poll warning: {ex.Message}");
+            }
+        }
+
+        return Ok(new PaymentStatusResponse(payment.Id, payment.Status, payment.TransactionReference, payment.PaidAt));
     }
 
     [HttpGet("my")]
