@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { VenueBooking, CreateVenueBookingRequest } from '../models/venue.models';
+import { VenueBooking, CreateVenueBookingRequest, VenueBookingStatusResponse } from '../models/venue.models';
 
 @Injectable({ providedIn: 'root' })
 export class VenueBookingsService {
@@ -12,6 +12,10 @@ export class VenueBookingsService {
 
   create(request: CreateVenueBookingRequest): Observable<VenueBooking> {
     return this.http.post<VenueBooking>(this.apiUrl, request);
+  }
+
+  getStatus(id: string): Observable<VenueBookingStatusResponse> {
+    return this.http.get<VenueBookingStatusResponse>(`${this.apiUrl}/${id}/status`);
   }
 
   getMy(): Observable<VenueBooking[]> {

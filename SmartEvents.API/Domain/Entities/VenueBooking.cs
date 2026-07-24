@@ -17,6 +17,7 @@ public class VenueBooking
     public PaymentMethod PaymentMethod { get; set; }
     public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
     public string? TransactionRef { get; set; }
+    public string? PawaPayDepositId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

@@ -74,79 +74,121 @@
 
         @if (isAuthenticated) {
 
-          @if (successMessage) {
-            <div class="success-msg">
-              <lucide-angular name="check-circle" [size]="18"></lucide-angular>
-              {{ successMessage }}
-            </div>
-          }
+          <!-- IDLE / FORM STATE -->
+          @if (bookingState === 'idle') {
 
-          @if (bookingError) {
-            <div class="error-msg">{{ bookingError }}</div>
-          }
-
-          <div class="booking-form">
-            <div class="form-row">
-              <div class="field">
-                <label for="startDate">Start Date</label>
-                <input
-                  id="startDate"
-                  type="date"
-                  [(ngModel)]="startDate"
-                  (change)="onDatesChange()"
-                  [min]="today"
-                  name="startDate"
-                />
-              </div>
-              <div class="field">
-                <label for="endDate">End Date</label>
-                <input
-                  id="endDate"
-                  type="date"
-                  [(ngModel)]="endDate"
-                  (change)="onDatesChange()"
-                  [min]="startDate || today"
-                  name="endDate"
-                />
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="notes">Notes (optional)</label>
-              <textarea
-                id="notes"
-                [(ngModel)]="notes"
-                name="notes"
-                placeholder="Any special requirements?"
-                rows="3"
-              ></textarea>
-            </div>
-
-            <div class="field">
-              <label for="paymentMethod">Payment Method</label>
-              <select id="paymentMethod" [(ngModel)]="selectedPaymentMethod" name="paymentMethod">
-                @for (method of paymentMethods; track method) {
-                  <option [value]="method">{{ method }}</option>
-                }
-              </select>
-            </div>
-
-            @if (venue.pricePerDay && venue.pricePerDay > 0 && startDate && endDate && startDate < endDate) {
-              <div class="booking-summary">
-                <lucide-angular name="calendar" [size]="16"></lucide-angular>
-                {{ totalDays }} day(s) &times; K {{ venue.pricePerDay | number:'1.0-0' }} =
-                <strong>K {{ totalAmount | number:'1.0-0' }}</strong>
-              </div>
+            @if (bookingError) {
+              <div class="error-msg">{{ bookingError }}</div>
             }
 
-            <button
-              class="btn-primary book-btn"
-              (click)="book()"
-              [disabled]="bookingLoading || !startDate || !endDate"
-            >
-              {{ bookingLoading ? 'Booking...' : 'Book Venue' }}
-            </button>
-          </div>
+            <div class="booking-form">
+              <div class="form-row">
+                <div class="field">
+                  <label for="startDate">Start Date</label>
+                  <input
+                    id="startDate"
+                    type="date"
+                    [(ngModel)]="startDate"
+                    (change)="onDatesChange()"
+                    [min]="today"
+                    name="startDate"
+                  />
+                </div>
+                <div class="field">
+                  <label for="endDate">End Date</label>
+                  <input
+                    id="endDate"
+                    type="date"
+                    [(ngModel)]="endDate"
+                    (change)="onDatesChange()"
+                    [min]="startDate || today"
+                    name="endDate"
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="notes">Notes (optional)</label>
+                <textarea
+                  id="notes"
+                  [(ngModel)]="notes"
+                  name="notes"
+                  placeholder="Any special requirements?"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <div class="field">
+                <label for="paymentMethod">Payment Method</label>
+                <select id="paymentMethod" [(ngModel)]="selectedPaymentMethod" name="paymentMethod" (ngModelChange)="onMethodChange()">
+                  @for (method of paymentMethods; track method.value) {
+                    <option [value]="method.value">{{ method.label }}</option>
+                  }
+                </select>
+              </div>
+
+              @if (isMobileMoney) {
+                <div class="field">
+                  <label for="phoneNumber">Mobile Money Number</label>
+                  <input
+                    id="phoneNumber"
+                    type="tel"
+                    [(ngModel)]="phoneNumber"
+                    name="phoneNumber"
+                    placeholder="260XXXXXXXXX"
+                    maxlength="20"
+                  />
+                  <small class="form-hint">Zambian format: 260XXXXXXXXX</small>
+                </div>
+              }
+
+              @if (venue.pricePerDay && venue.pricePerDay > 0 && startDate && endDate && startDate < endDate) {
+                <div class="booking-summary">
+                  <lucide-angular name="calendar" [size]="16"></lucide-angular>
+                  {{ totalDays }} day(s) &times; K {{ venue.pricePerDay | number:'1.0-0' }} =
+                  <strong>K {{ totalAmount | number:'1.0-0' }}</strong>
+                </div>
+              }
+
+              <button
+                class="btn-primary book-btn"
+                (click)="book()"
+                [disabled]="bookingLoading || !startDate || !endDate || (isMobileMoney && !phoneNumber.trim())"
+              >
+                {{ bookingLoading ? 'Processing...' : 'Book Venue' }}
+              </button>
+            </div>
+          }
+
+          <!-- PENDING STATE -->
+          @if (bookingState === 'pending') {
+            <div class="booking-state-panel">
+              <div class="checkout-spinner"></div>
+              <h3>Waiting for payment…</h3>
+              <p>A push notification was sent to <strong>{{ phoneNumber }}</strong>. Approve it in your mobile money app.</p>
+              <p class="form-hint">This page updates automatically.</p>
+            </div>
+          }
+
+          <!-- COMPLETED STATE -->
+          @if (bookingState === 'completed') {
+            <div class="booking-state-panel booking-state-success">
+              <lucide-angular name="check-circle" [size]="40"></lucide-angular>
+              <h3>Booking Confirmed!</h3>
+              <p>{{ successMessage }}</p>
+              <a routerLink="/venues/my-bookings" class="btn-primary">View My Bookings</a>
+            </div>
+          }
+
+          <!-- FAILED / TIMEOUT STATE -->
+          @if (bookingState === 'failed' || bookingState === 'timeout') {
+            <div class="booking-state-panel booking-state-failed">
+              <lucide-angular name="alert-circle" [size]="40"></lucide-angular>
+              <h3>{{ bookingState === 'timeout' ? 'Payment Timed Out' : 'Payment Failed' }}</h3>
+              <p>{{ bookingError }}</p>
+              <button class="btn-primary" (click)="retryForm()">Try Again</button>
+            </div>
+          }
 
         } @else {
           <div class="login-prompt">

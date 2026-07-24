@@ -62,4 +62,12 @@ export interface CreateVenueBookingRequest {
   endDate: string;
   notes?: string;
   paymentMethod: PaymentMethod;
+  phoneNumber?: string;
+}
+
+export interface VenueBookingStatusResponse {
+  bookingId: string;
+  status: VenueBookingStatus;
+  paymentStatus: PaymentStatus;
+  transactionRef?: string;
 }

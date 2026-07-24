@@ -8,7 +8,8 @@ public record CreateVenueBookingRequest(
     [Required] DateTime StartDate,
     [Required] DateTime EndDate,
     string? Notes,
-    [Required] PaymentMethod PaymentMethod
+    [Required] PaymentMethod PaymentMethod,
+    string? PhoneNumber
 );
 
 public record VenueBookingResponse(
@@ -26,4 +27,11 @@ public record VenueBookingResponse(
     PaymentStatus PaymentStatus,
     string? TransactionRef,
     DateTime CreatedAt
+);
+
+public record VenueBookingStatusResponse(
+    Guid BookingId,
+    VenueBookingStatus Status,
+    PaymentStatus PaymentStatus,
+    string? TransactionRef
 );

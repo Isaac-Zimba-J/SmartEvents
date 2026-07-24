@@ -1299,3 +1299,20 @@ button:not([class]) {
 @keyframes checkout-spin {
   to { transform: rotate(360deg); }
 }
+
+/* ─── Venue Booking State Panels ─────────────────────────── */
+.booking-state-panel {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  margin-top: 1rem;
+
+  lucide-angular { display: block; margin: 0 auto 1rem; }
+  h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .4rem; }
+  p  { color: var(--text-muted); margin-bottom: 1rem; }
+}
+
+.booking-state-success lucide-angular { color: var(--success); }
+.booking-state-failed  lucide-angular { color: var(--danger); }
