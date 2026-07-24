@@ -33,7 +33,7 @@ export class VenueDetailComponent implements OnInit {
   successMessage = '';
   bookingError = '';
 
-  paymentMethods: PaymentMethod[] = ['Stripe', 'AirtelMoney', 'MTNMoMo', 'Free'];
+  paymentMethods: PaymentMethod[] = ['AirtelMoney', 'MTNMoMo', 'Free'];
 
   constructor(
     private route: ActivatedRoute,

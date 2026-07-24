@@ -1,11 +1,12 @@
 import { RegistrationResponse } from './registration.models';
 
-export type PaymentMethod = 'Stripe' | 'AirtelMoney' | 'MTNMoMo' | 'Free';
+export type PaymentMethod = 'AirtelMoney' | 'MTNMoMo' | 'Free';
 export type PaymentStatus = 'Pending' | 'Completed' | 'Failed' | 'Refunded';
 
 export interface PaymentCheckoutRequest {
   eventId: string;
   paymentMethod: PaymentMethod;
+  phoneNumber: string;
   notes?: string;
 }
 
@@ -16,6 +17,13 @@ export interface PaymentCheckoutResponse {
   status: PaymentStatus;
   method: PaymentMethod;
   registration: RegistrationResponse;
+}
+
+export interface PaymentStatusResponse {
+  paymentId: string;
+  status: PaymentStatus;
+  transactionReference?: string;
+  paidAt?: string;
 }
 
 export interface PaymentSummaryResponse {
