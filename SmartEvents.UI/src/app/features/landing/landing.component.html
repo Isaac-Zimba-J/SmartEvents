@@ -1,0 +1,126 @@
+<div class="landing">
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav__inner">
+      <a routerLink="/" class="nav__brand">
+        <lucide-icon name="Sparkles" [size]="20" />
+        <span>SmartEvents</span>
+      </a>
+      <div class="nav__actions">
+        <a routerLink="/auth/login" class="btn-ghost-sm">Sign In</a>
+        <a routerLink="/auth/register" class="btn-primary">Get Started</a>
+      </div>
+    </div>
+  </nav>
+  <!-- NAV END -->
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero__inner">
+      <span class="hero__badge">Built for events across Zambia</span>
+      <h1 class="hero__title">Run unforgettable events, from RSVP to check-in.</h1>
+      <p class="hero__subtitle">
+        SmartEvents gives organizers everything they need to publish events, sell tickets,
+        and check attendees in with a single scan — all in one platform, priced in Kwacha.
+      </p>
+      <div class="hero__actions">
+        <a routerLink="/auth/register" class="btn-primary hero__cta">
+          Get Started Free
+          <lucide-icon name="ArrowRight" [size]="18" />
+        </a>
+        <a routerLink="/events" class="btn-secondary">Browse Events</a>
+      </div>
+    </div>
+  </header>
+  <!-- HERO END -->
+
+  <!-- PARTNERS -->
+  <section class="partners">
+    <div class="partners__inner">
+      <p class="partners__heading">Trusted by organizations across Zambia</p>
+      <div class="partners__marquee">
+        <ul class="partners__track">
+          @for (partner of partners; track partner.file) {
+            <li class="partners__logo">
+              <img [src]="'/images/partners/' + partner.file" [alt]="partner.name" loading="lazy" />
+            </li>
+          }
+          @for (partner of partners; track partner.file + '-dup') {
+            <li class="partners__logo" aria-hidden="true">
+              <img [src]="'/images/partners/' + partner.file" [alt]="partner.name" loading="lazy" />
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+  <!-- PARTNERS END -->
+
+  <!-- FEATURES -->
+  <section class="features">
+    <div class="features__inner">
+      <h2 class="features__title">Everything you need to run an event</h2>
+      <p class="features__subtitle">From ticket sales to the door, SmartEvents covers the whole lifecycle.</p>
+      <div class="features__grid">
+        @for (feature of features; track feature.title) {
+          <div class="feature-card">
+            <div class="feature-card__icon">
+              <lucide-icon [name]="feature.icon" [size]="22" />
+            </div>
+            <h3 class="feature-card__title">{{ feature.title }}</h3>
+            <p class="feature-card__description">{{ feature.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+  <!-- FEATURES END -->
+
+  <!-- HOW IT WORKS -->
+  <section class="how-it-works">
+    <div class="how-it-works__inner">
+      <h2 class="how-it-works__title">How it works</h2>
+      <p class="how-it-works__subtitle">From first draft to final headcount, in four steps.</p>
+      <div class="how-it-works__steps">
+        @for (step of steps; track step.number) {
+          <div class="step">
+            <span class="step__number">{{ step.number }}</span>
+            <h3 class="step__title">{{ step.title }}</h3>
+            <p class="step__description">{{ step.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+  <!-- HOW IT WORKS END -->
+
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <div class="final-cta__inner">
+      <h2 class="final-cta__title">Ready to run your next event?</h2>
+      <p class="final-cta__subtitle">Join organizers across Zambia already using SmartEvents.</p>
+      <a routerLink="/auth/register" class="btn-primary final-cta__button">
+        Get Started Free
+        <lucide-icon name="ArrowRight" [size]="18" />
+      </a>
+    </div>
+  </section>
+  <!-- FINAL CTA END -->
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <lucide-icon name="Sparkles" [size]="18" />
+        <span>SmartEvents</span>
+      </div>
+      <nav class="footer__links">
+        <a routerLink="/events">Browse Events</a>
+        <a routerLink="/auth/login">Sign In</a>
+        <a routerLink="/auth/register">Get Started</a>
+      </nav>
+      <p class="footer__copyright">&copy; 2026 SmartEvents. Built for Zambia.</p>
+    </div>
+  </footer>
+  <!-- FOOTER END -->
+</div>

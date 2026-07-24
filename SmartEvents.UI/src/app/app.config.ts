@@ -5,10 +5,10 @@ import {
   LucideAngularModule,
   Eye, EyeOff,
   LayoutDashboard, Calendar, MapPin, Building2, Users, BarChart2, User, LogOut,
-  Plus, Pencil, Trash2, ArrowLeft, Ticket, QrCode,
+  Plus, Pencil, Trash2, ArrowLeft, ArrowRight, Ticket, QrCode,
   Check, X, Shield, Mail, Phone, Globe, Clock,
   Search, ChevronRight, Settings, AlertCircle, CheckCircle,
-  ScanLine, Star, Tag, DollarSign, Briefcase, BookMarked, Bell
+  ScanLine, Star, Tag, DollarSign, Briefcase, BookMarked, Bell, Sparkles
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -23,10 +23,10 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(LucideAngularModule.pick({
       Eye, EyeOff,
       LayoutDashboard, Calendar, MapPin, Building2, Users, BarChart2, User, LogOut,
-      Plus, Pencil, Trash2, ArrowLeft, Ticket, QrCode,
+      Plus, Pencil, Trash2, ArrowLeft, ArrowRight, Ticket, QrCode,
       Check, X, Shield, Mail, Phone, Globe, Clock,
       Search, ChevronRight, Settings, AlertCircle, CheckCircle,
-      ScanLine, Star, Tag, DollarSign, Briefcase, BookMarked, Bell
+      ScanLine, Star, Tag, DollarSign, Briefcase, BookMarked, Bell, Sparkles
     }))
   ]
 };
