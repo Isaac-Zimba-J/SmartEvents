@@ -59,7 +59,7 @@
             <div class="error">{{ error }}</div>
           }
 
-          @if (!successMessage && !registration) {
+          @if (!successMessage && !registration && !showCheckout) {
             @if (auth.isAuthenticated()) {
 
               @if (!event.isTicketed) {
@@ -73,7 +73,7 @@
                   @else if (isFull && event.waitlistEnabled) { Join Waitlist }
                   @else { Register Now }
                 </button>
-              } @else if (!showCheckout) {
+              } @else {
                 <!-- Paid event: open checkout panel -->
                 <button
                   class="btn-register"
@@ -84,65 +84,86 @@
                 </button>
               }
 
-              @if (showCheckout) {
-                <!-- Mock checkout panel -->
-                <div class="checkout-panel">
-                  <h3>Checkout</h3>
-                  <p class="checkout-amount">Total: <strong>K {{ event.ticketPrice | number:'1.0-0' }}</strong></p>
+            } @else {
+              <a routerLink="/auth/login" class="btn-register">Sign in to Register</a>
+            }
+          }
+
+          @if (showCheckout) {
+            <div class="checkout-overlay">
+              <div class="checkout-panel">
+
+                @if (checkoutState === 'idle') {
+                  <h3>Complete Purchase</h3>
+                  <p class="checkout-amount">K {{ event.ticketPrice | number:'1.2-2' }}</p>
 
                   <div class="field">
                     <label>Payment Method</label>
-                    <select [(ngModel)]="selectedPaymentMethod" name="paymentMethod">
+                    <select [(ngModel)]="selectedPaymentMethod" name="paymentMethod" class="form-control">
                       @for (pm of paymentMethods; track pm.value) {
                         <option [value]="pm.value">{{ pm.label }}</option>
                       }
                     </select>
                   </div>
 
-                  @if (selectedPaymentMethod === 'Stripe') {
-                    <div class="mock-card-fields">
-                      <div class="field">
-                        <label>Card Number</label>
-                        <input type="text" placeholder="4242 4242 4242 4242" disabled />
-                      </div>
-                      <div class="field-row">
-                        <div class="field">
-                          <label>Expiry</label>
-                          <input type="text" placeholder="12/28" disabled />
-                        </div>
-                        <div class="field">
-                          <label>CVV</label>
-                          <input type="text" placeholder="123" disabled />
-                        </div>
-                      </div>
-                    </div>
-                  }
-
-                  @if (selectedPaymentMethod === 'AirtelMoney' || selectedPaymentMethod === 'MTNMoMo') {
-                    <div class="field">
-                      <label>Mobile Number</label>
-                      <input type="tel" placeholder="+265 999 000 000" disabled />
-                    </div>
-                  }
-
-                  <p class="mock-notice">This is a mock payment — no real charge will be made.</p>
+                  <div class="field">
+                    <label>Mobile Money Number</label>
+                    <input
+                      type="tel"
+                      [(ngModel)]="phoneNumber"
+                      name="phoneNumber"
+                      placeholder="260XXXXXXXXX"
+                      class="form-control"
+                      maxlength="20"
+                    />
+                    <small class="form-hint">Zambian format: 260XXXXXXXXX</small>
+                  </div>
 
                   @if (error) {
-                    <p class="error">{{ error }}</p>
+                    <div class="alert alert-danger">{{ error }}</div>
                   }
 
                   <div class="checkout-actions">
                     <button class="btn-secondary" (click)="cancelCheckout()" [disabled]="acting">Cancel</button>
-                    <button class="btn-primary" (click)="completePurchase()" [disabled]="acting">
-                      {{ acting ? 'Processing...' : 'Confirm Payment' }}
+                    <button class="btn-primary" (click)="completePurchase()" [disabled]="acting || !phoneNumber.trim()">
+                      @if (acting) { Processing... } @else { Pay Now }
                     </button>
                   </div>
-                </div>
-              }
+                }
 
-            } @else {
-              <a routerLink="/auth/login" class="btn-register">Sign in to Register</a>
-            }
+                @if (checkoutState === 'pending') {
+                  <div class="checkout-pending">
+                    <div class="checkout-spinner"></div>
+                    <h3>Waiting for payment…</h3>
+                    <p>A push notification has been sent to <strong>{{ phoneNumber }}</strong>. Approve it in your mobile money app.</p>
+                    <p class="form-hint">This page updates automatically.</p>
+                    <button class="btn-secondary" (click)="cancelCheckout()">Cancel</button>
+                  </div>
+                }
+
+                @if (checkoutState === 'completed') {
+                  <div class="checkout-success">
+                    <lucide-angular name="check-circle" [size]="48"></lucide-angular>
+                    <h3>Payment Successful!</h3>
+                    <p>Ticket: <strong>{{ registration?.ticket?.ticketNumber }}</strong></p>
+                    <button class="btn-primary" (click)="cancelCheckout()">Done</button>
+                  </div>
+                }
+
+                @if (checkoutState === 'failed' || checkoutState === 'timeout') {
+                  <div class="checkout-failed">
+                    <lucide-angular name="alert-circle" [size]="48"></lucide-angular>
+                    <h3>{{ checkoutState === 'timeout' ? 'Payment Timed Out' : 'Payment Failed' }}</h3>
+                    <p>{{ error }}</p>
+                    <div class="checkout-actions">
+                      <button class="btn-secondary" (click)="cancelCheckout()">Close</button>
+                      <button class="btn-primary" (click)="checkoutState = 'idle'; error = ''">Try Again</button>
+                    </div>
+                  </div>
+                }
+
+              </div>
+            </div>
           }
         </div>
       </div>
