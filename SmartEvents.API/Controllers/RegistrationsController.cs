@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartEvents.API.Application.DTOs;
+using SmartEvents.API.Application.Interfaces;
 using SmartEvents.API.Domain.Entities;
 using SmartEvents.API.Domain.Enums;
 using SmartEvents.API.Infrastructure.Data;
@@ -12,7 +13,7 @@ namespace SmartEvents.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class RegistrationsController(SmartEventsDbContext db) : ControllerBase
+public class RegistrationsController(SmartEventsDbContext db, INotificationDispatcher notificationDispatcher) : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<RegistrationResponse>> Register(CreateRegistrationRequest request)
@@ -67,6 +68,24 @@ public class RegistrationsController(SmartEventsDbContext db) : ControllerBase
         }
 
         await db.SaveChangesAsync();
+
+        try
+        {
+            var fullReg = await db.Registrations
+                .Include(r => r.User)
+                .Include(r => r.Event)
+                .Include(r => r.Ticket)
+                .FirstAsync(r => r.Id == registration.Id);
+
+            if (fullReg.Status == RegistrationStatus.Confirmed)
+                await notificationDispatcher.SendRegistrationConfirmedAsync(fullReg);
+            else if (fullReg.Status == RegistrationStatus.Waitlisted)
+                await notificationDispatcher.SendRegistrationWaitlistedAsync(fullReg);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Notification dispatch warning: {ex.Message}");
+        }
 
         return CreatedAtAction(nameof(GetById), new { id = registration.Id },
             await BuildResponse(registration.Id));

@@ -36,6 +36,7 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   checkoutState: CheckoutState = 'idle';
 
   private pollSub: Subscription | null = null;
+  private routeSub: Subscription | null = null;
   private readonly MAX_POLLS = 40;
 
   readonly paymentMethods: { value: PaymentMethod; label: string }[] = [
@@ -52,22 +53,35 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const slug = this.route.snapshot.paramMap.get('slug')!;
-    this.eventsService.getBySlug(slug).subscribe({
-      next: data => {
-        this.event = data;
-        this.loading = false;
-        this.eventsService.getRecommended(data.id, data.category).subscribe({
-          next: recs => { this.recommendations = recs; },
-          error: () => {}
-        });
-      },
-      error: () => { this.loading = false; }
+    this.routeSub = this.route.paramMap.subscribe(params => {
+      const slug = params.get('slug')!;
+      this.loading = true;
+      this.event = null;
+      this.registration = null;
+      this.successMessage = '';
+      this.error = '';
+      this.recommendations = [];
+      this.showCheckout = false;
+      this.checkoutState = 'idle';
+      this.stopPolling();
+
+      this.eventsService.getBySlug(slug).subscribe({
+        next: data => {
+          this.event = data;
+          this.loading = false;
+          this.eventsService.getRecommended(data.id, data.category).subscribe({
+            next: recs => { this.recommendations = recs; },
+            error: () => {}
+          });
+        },
+        error: () => { this.loading = false; }
+      });
     });
   }
 
   ngOnDestroy(): void {
     this.stopPolling();
+    this.routeSub?.unsubscribe();
   }
 
   get spotsLeft(): number {

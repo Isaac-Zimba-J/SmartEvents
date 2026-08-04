@@ -16,7 +16,8 @@ namespace SmartEvents.API.Controllers;
 public class PaymentsController(
     SmartEventsDbContext db,
     IQrCodeService qrCodeService,
-    IPawaPayService pawaPayService) : ControllerBase
+    IPawaPayService pawaPayService,
+    INotificationDispatcher notificationDispatcher) : ControllerBase
 {
     private static readonly Dictionary<PaymentMethod, string> CorrespondentMap = new()
     {
@@ -162,6 +163,20 @@ public class PaymentsController(
                     payment.PaidAt = DateTime.UtcNow;
                     payment.Registration.Status = RegistrationStatus.Confirmed;
                     await db.SaveChangesAsync();
+
+                    try
+                    {
+                        var fullReg = await db.Registrations
+                            .Include(r => r.User)
+                            .Include(r => r.Event)
+                            .Include(r => r.Ticket)
+                            .FirstAsync(r => r.Id == payment.Registration.Id);
+                        await notificationDispatcher.SendRegistrationConfirmedAsync(fullReg);
+                    }
+                    catch (Exception notifEx)
+                    {
+                        Console.Error.WriteLine($"Notification dispatch warning: {notifEx.Message}");
+                    }
                 }
                 else if (remote.Status == "FAILED")
                 {

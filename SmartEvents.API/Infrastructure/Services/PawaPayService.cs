@@ -36,7 +36,7 @@ public class PawaPayService(IConfiguration configuration, IHttpClientFactory htt
     {
         var body = new PawaPayDepositRequest(
             DepositId: depositId,
-            Amount: amount,
+            Amount: amount.ToString("F2"),
             Currency: currency,
             Correspondent: correspondent,
             Payer: new PawaPayPayer("MSISDN", new PawaPayAddress(phoneNumber)),

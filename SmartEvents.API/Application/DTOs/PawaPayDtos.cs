@@ -3,7 +3,7 @@ namespace SmartEvents.API.Application.DTOs;
 // Sent to POST /deposits
 public record PawaPayDepositRequest(
     string DepositId,
-    decimal Amount,
+    string Amount,
     string Currency,
     string Correspondent,
     PawaPayPayer Payer,

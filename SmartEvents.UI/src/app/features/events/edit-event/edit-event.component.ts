@@ -106,6 +106,8 @@ export class EditEventComponent implements OnInit {
     const value = this.form.value;
     const request = {
       ...value,
+      startDate: new Date(value.startDate).toISOString(),
+      endDate: new Date(value.endDate).toISOString(),
       ticketPrice: this.isTicketed ? value.ticketPrice : 0,
       venueId: value.venueId || undefined,
       venueText: value.venueId ? undefined : (value.venueText || undefined)
