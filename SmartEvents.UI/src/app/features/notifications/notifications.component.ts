@@ -22,6 +22,11 @@ export class NotificationsComponent implements OnInit {
       next: data => {
         this.notifications = data;
         this.loading = false;
+        // Mark all as read and reset badge
+        this.notificationsService.markAllRead().subscribe({
+          next: () => this.notificationsService.unreadCount.set(0),
+          error: () => {}
+        });
       },
       error: () => {
         this.error = 'Failed to load notifications.';
@@ -42,8 +47,8 @@ export class NotificationsComponent implements OnInit {
   }
 
   iconFor(type: string): string {
-    if (type === 'Email') return 'Mail';
-    if (type === 'SMS') return 'Phone';
-    return 'Bell';
+    if (type === 'Email') return 'mail';
+    if (type === 'SMS') return 'phone';
+    return 'bell';
   }
 }

@@ -95,7 +95,7 @@ public class PaymentsController(
 
         await db.SaveChangesAsync();
 
-        // Initiate PawaPay deposit — failure is non-fatal so frontend polling can still resolve it
+        // Initiate PawaPay deposit — if this fails, clean up and return an error immediately
         try
         {
             await pawaPayService.InitiateDepositAsync(
@@ -108,7 +108,12 @@ public class PaymentsController(
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"PawaPay initiation warning: {ex.Message}");
+            payment.Status = PaymentStatus.Failed;
+            payment.GatewayResponse = ex.Message;
+            registration.Status = RegistrationStatus.Cancelled;
+            await db.SaveChangesAsync();
+            Console.Error.WriteLine($"PawaPay initiation failed: {ex.Message}");
+            return UnprocessableEntity(new { message = "Payment initiation failed. Please verify your phone number is in format 260XXXXXXXXX and try again." });
         }
 
         return Ok(new PaymentCheckoutResponse(

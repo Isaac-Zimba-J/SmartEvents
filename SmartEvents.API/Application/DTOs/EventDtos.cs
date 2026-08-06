@@ -19,7 +19,8 @@ public record CreateEventRequest(
     string? Tags,
     Guid? VenueId,
     string? VenueText,
-    Guid? CompanyId
+    Guid? CompanyId,
+    EventStatus? InitialStatus
 );
 
 public record UpdateEventRequest(

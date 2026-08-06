@@ -24,13 +24,23 @@
         <input type="url" formControlName="imageUrl" placeholder="https://..." />
       </div>
 
-      <div class="field">
-        <label>Category *</label>
-        <select formControlName="category">
-          @for (cat of categories; track cat) {
-            <option [value]="cat">{{ cat }}</option>
-          }
-        </select>
+      <div class="field-row">
+        <div class="field">
+          <label>Category *</label>
+          <select formControlName="category">
+            @for (cat of categories; track cat) {
+              <option [value]="cat">{{ cat }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label>Publish Status</label>
+          <select formControlName="initialStatus">
+            @for (s of statuses; track s.value) {
+              <option [value]="s.value">{{ s.label }}</option>
+            }
+          </select>
+        </div>
       </div>
 
       <div class="field">

@@ -176,7 +176,7 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
             Description = request.Description,
             ImageUrl = request.ImageUrl,
             Category = request.Category,
-            Status = EventStatus.Draft,
+            Status = request.InitialStatus ?? EventStatus.Draft,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
             Timezone = request.Timezone,

@@ -28,6 +28,11 @@ export class CreateEventComponent implements OnInit {
     'Sports', 'Networking', 'Webinar', 'Other'
   ];
 
+  readonly statuses = [
+    { value: 'Draft', label: 'Save as Draft' },
+    { value: 'Published', label: 'Publish Immediately' }
+  ];
+
   constructor(
     private fb: FormBuilder,
     private eventsService: EventsService,
@@ -52,7 +57,8 @@ export class CreateEventComponent implements OnInit {
       tags: [''],
       venueId: [''],
       venueText: [''],
-      companyId: ['']
+      companyId: [''],
+      initialStatus: ['Draft']
     });
   }
 
@@ -95,7 +101,8 @@ export class CreateEventComponent implements OnInit {
       ticketPrice: this.isTicketed ? value.ticketPrice : 0,
       venueId: value.venueId || undefined,
       venueText: value.venueId ? undefined : (value.venueText || undefined),
-      companyId: value.companyId || undefined
+      companyId: value.companyId || undefined,
+      initialStatus: value.initialStatus || 'Draft'
     };
 
     this.eventsService.create(request).subscribe({

@@ -1,0 +1,57 @@
+<header class="dashboard-header">
+  <div class="dashboard-brand">
+    <lucide-angular name="calendar" [size]="22" class="brand-icon" />
+    <span>SmartEvents</span>
+  </div>
+  <div class="user-info">
+    <div class="user-avatar">{{ (auth.currentUser()?.firstName ?? 'U')[0] }}{{ (auth.currentUser()?.lastName ?? '')[0] }}</div>
+    <div class="user-details">
+      <span class="user-name">{{ auth.currentUser()?.firstName }} {{ auth.currentUser()?.lastName }}</span>
+      <span class="role-badge">{{ auth.currentUser()?.role }}</span>
+    </div>
+    <a routerLink="/profile" class="btn-ghost-sm">
+      <lucide-angular name="user" [size]="14" /> Profile
+    </a>
+    <button class="btn-logout" (click)="auth.logout()">
+      <lucide-angular name="log-out" [size]="14" /> Logout
+    </button>
+  </div>
+</header>
+
+<nav class="dashboard-nav">
+  <a routerLink="/dashboard" routerLinkActive="active">
+    <lucide-angular name="layout-dashboard" [size]="16" /> Dashboard
+  </a>
+  <a routerLink="/events" routerLinkActive="active">
+    <lucide-angular name="calendar" [size]="16" /> Events
+  </a>
+  <a routerLink="/venues" routerLinkActive="active">
+    <lucide-angular name="map-pin" [size]="16" /> Venues
+  </a>
+  <a routerLink="/venues/my-bookings" routerLinkActive="active">
+    <lucide-angular name="book-marked" [size]="16" /> My Bookings
+  </a>
+  <a routerLink="/registrations/my" routerLinkActive="active">
+    <lucide-angular name="ticket" [size]="16" /> My Tickets
+  </a>
+  <a routerLink="/notifications" routerLinkActive="active" class="notif-link">
+    <lucide-angular name="bell" [size]="16" />
+    Notifications
+    @if (notifs.unreadCount() > 0) {
+      <span class="notif-badge">{{ notifs.unreadCount() }}</span>
+    }
+  </a>
+  @if (isOrganizer) {
+    <a routerLink="/organizer" routerLinkActive="active">
+      <lucide-angular name="briefcase" [size]="16" /> Manage
+    </a>
+  }
+  @if (auth.isAdmin()) {
+    <a routerLink="/companies" routerLinkActive="active">
+      <lucide-angular name="building-2" [size]="16" /> Companies
+    </a>
+    <a routerLink="/analytics" routerLinkActive="active">
+      <lucide-angular name="bar-chart-2" [size]="16" /> Analytics
+    </a>
+  }
+</nav>

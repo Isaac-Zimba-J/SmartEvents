@@ -25,8 +25,15 @@
         </div>
 
         <div class="field">
-          <label>Logo URL</label>
-          <input type="url" formControlName="logoUrl" placeholder="https://..." />
+          <label>Company Logo</label>
+          @if (logoPreview) {
+            <div class="logo-preview">
+              <img [src]="logoPreview" alt="Company logo" class="logo-img" />
+              <button type="button" class="btn-danger-sm" (click)="removeLogo()">Remove</button>
+            </div>
+          }
+          <input type="file" accept="image/*" (change)="onLogoSelected($event)" class="file-input" />
+          <small class="form-hint">Max 2 MB. PNG, JPG, or WebP.</small>
         </div>
       </div>
 

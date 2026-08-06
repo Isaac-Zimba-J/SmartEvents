@@ -11,6 +11,7 @@ public class Notification
     public string Subject { get; set; } = string.Empty;
     public string Body { get; set; } = string.Empty;
     public bool IsSent { get; set; } = false;
+    public bool IsRead { get; set; } = false;
     public string? ErrorMessage { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? SentAt { get; set; }

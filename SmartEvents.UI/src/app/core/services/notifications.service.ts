@@ -1,16 +1,9 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 import { ToastService } from './toast.service';
-
-export interface SignalRNotification {
-  type: string;
-  title: string;
-  message: string;
-  data?: Record<string, unknown>;
-}
 
 export interface NotificationRecord {
   id: string;
@@ -19,6 +12,7 @@ export interface NotificationRecord {
   subject: string;
   body: string;
   isSent: boolean;
+  isRead: boolean;
   createdAt: string;
   sentAt?: string;
 }
@@ -28,6 +22,8 @@ export class NotificationsService implements OnDestroy {
   private connection: signalR.HubConnection | null = null;
   private readonly apiUrl = `${environment.apiUrl}/notifications`;
 
+  readonly unreadCount = signal<number>(0);
+
   constructor(
     private http: HttpClient,
     private authService: AuthService,
@@ -36,6 +32,17 @@ export class NotificationsService implements OnDestroy {
 
   getHistory() {
     return this.http.get<NotificationRecord[]>(this.apiUrl);
+  }
+
+  fetchUnreadCount() {
+    this.http.get<{ count: number }>(`${this.apiUrl}/count`).subscribe({
+      next: r => this.unreadCount.set(r.count),
+      error: () => {}
+    });
+  }
+
+  markAllRead() {
+    return this.http.post<void>(`${this.apiUrl}/mark-read`, {});
   }
 
   connect(): void {
@@ -49,12 +56,28 @@ export class NotificationsService implements OnDestroy {
       .configureLogging(signalR.LogLevel.Warning)
       .build();
 
-    this.connection.on('ReceiveNotification', (notification: SignalRNotification) => {
-      this.handleNotification(notification);
+    // Backend sends event name "notification" (not "ReceiveNotification")
+    this.connection.on('notification', (payload: { type: string; data: Record<string, unknown>; timestamp: string }) => {
+      const message = String(payload.data?.['message'] ?? '');
+      switch (payload.type) {
+        case 'registration_confirmed':
+          this.toast.success(message || 'Registration confirmed!');
+          break;
+        case 'event_cancelled':
+          this.toast.error(message || 'Event cancelled.');
+          break;
+        case 'waitlisted':
+          this.toast.info(message || 'Added to waitlist.');
+          break;
+        default:
+          this.toast.info(message);
+      }
+      this.unreadCount.update(n => n + 1);
     });
 
     this.connection
       .start()
+      .then(() => this.fetchUnreadCount())
       .catch(err => console.error('SignalR connection error:', err));
   }
 
@@ -65,23 +88,5 @@ export class NotificationsService implements OnDestroy {
 
   ngOnDestroy(): void {
     this.disconnect();
-  }
-
-  private handleNotification(notification: SignalRNotification): void {
-    const text = notification.title ? `${notification.title}: ${notification.message}` : notification.message;
-    switch (notification.type) {
-      case 'RegistrationConfirmed':
-        this.toast.success(text);
-        break;
-      case 'EventCancelled':
-        this.toast.error(text);
-        break;
-      case 'EventUpdated':
-      case 'EventReminder':
-        this.toast.info(text);
-        break;
-      default:
-        this.toast.info(text);
-    }
   }
 }

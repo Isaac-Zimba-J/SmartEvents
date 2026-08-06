@@ -17,6 +17,7 @@ export class EditCompanyComponent implements OnInit {
   saving = false;
   error = '';
   company: Company | null = null;
+  logoPreview: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -49,6 +50,7 @@ export class EditCompanyComponent implements OnInit {
           address: company.address ?? '',
           logoUrl: company.logoUrl ?? ''
         });
+        this.logoPreview = company.logoUrl ?? null;
         this.loading = false;
       },
       error: () => {
@@ -56,6 +58,31 @@ export class EditCompanyComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  onLogoSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      this.error = 'Please select an image file.';
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      this.error = 'Image must be under 2 MB.';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      this.logoPreview = dataUrl;
+      this.form.patchValue({ logoUrl: dataUrl });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeLogo(): void {
+    this.logoPreview = null;
+    this.form.patchValue({ logoUrl: '' });
   }
 
   submit(): void {
