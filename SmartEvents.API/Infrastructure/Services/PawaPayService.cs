@@ -41,7 +41,7 @@ public class PawaPayService(IConfiguration configuration, IHttpClientFactory htt
             Correspondent: correspondent,
             Payer: new PawaPayPayer("MSISDN", new PawaPayAddress(phoneNumber)),
             CustomerTimestamp: DateTime.UtcNow.ToString("o"),
-            StatementDescription: "SmartEvents ticket purchase"
+            StatementDescription: "SmartEvents"   // PawaPay caps this at 22 characters
         );
 
         var json = JsonSerializer.Serialize(body, JsonOpts);
@@ -54,8 +54,16 @@ public class PawaPayService(IConfiguration configuration, IHttpClientFactory htt
         if (!response.IsSuccessStatusCode)
             throw new InvalidOperationException($"PawaPay deposit initiation failed: {responseBody}");
 
-        return JsonSerializer.Deserialize<PawaPayInitiateResponse>(responseBody, JsonOpts)
+        var result = JsonSerializer.Deserialize<PawaPayInitiateResponse>(responseBody, JsonOpts)
             ?? throw new InvalidOperationException("Invalid PawaPay initiation response.");
+
+        // PawaPay answers 200 OK even when it rejects the deposit — treat REJECTED as a failure
+        // so the caller fails fast instead of polling a deposit that will never exist.
+        if (result.Status == "REJECTED")
+            throw new InvalidOperationException(
+                $"PawaPay rejected the deposit: {result.RejectionReason?.RejectionMessage ?? "unknown reason"}");
+
+        return result;
     }
 
     public async Task<PawaPayDepositStatusResponse> GetDepositStatusAsync(string depositId)

@@ -21,8 +21,8 @@ public class PaymentsController(
 {
     private static readonly Dictionary<PaymentMethod, string> CorrespondentMap = new()
     {
-        [PaymentMethod.AirtelMoney] = "AIRTEL_ZAMBIA",
-        [PaymentMethod.MTNMoMo] = "MTN_ZAMBIA"
+        [PaymentMethod.AirtelMoney] = "AIRTEL_OAPI_ZMB",
+        [PaymentMethod.MTNMoMo] = "MTN_MOMO_ZMB"
     };
 
     [HttpPost("checkout")]

@@ -175,6 +175,19 @@ SuperAdmin > CompanyAdmin > Organizer > Attendee
 3. **New Angular feature** → create folder under `features/`, add `*.routes.ts` exporting `FEATURE_ROUTES`, wire into `app.routes.ts` with `loadChildren`. Add service in `core/services/` and model file in `core/models/` if needed.
 4. **New Lucide icon needed** → import it in `app.config.ts` and add it to `LucideAngularModule.pick({...})`.
 5. **Payments via PawaPay sandbox** — real mobile money deposits via PawaPay. `PaymentMethod` options: `AirtelMoney`, `MTNMoMo`, `Free` (Stripe removed). `PawaPayService` (`Infrastructure/Services/`) wraps the PawaPay HTTP API. Checkout creates optimistic Pending registration + ticket, then polls `GET /api/payments/{id}/status` every 3 s (max 40 polls). Webhook at `POST /api/pawapay/webhook` handles production callbacks.
+5b. **Testing PawaPay sandbox** — the sandbox never contacts a real phone: no PIN prompt is sent and no money moves. Outcomes are driven entirely by the payer MSISDN, and only the documented test numbers are deterministic. Verified against this account (WASHENI):
+
+| Number | Correspondent | Result |
+|---|---|---|
+| `260973456789` | AIRTEL_OAPI_ZMB | COMPLETED |
+| `260763456789` | MTN_MOMO_ZMB | COMPLETED |
+| `260953456700` | ZAMTEL_ZMB | COMPLETED |
+| `260973456019` | AIRTEL_OAPI_ZMB | FAILED — PAYER_LIMIT_REACHED |
+| `260973456069` / `260763456069` | AIRTEL / MTN | FAILED — OTHER_ERROR |
+| `260973456129` | AIRTEL_OAPI_ZMB | stays SUBMITTED forever (exercises the 40-poll timeout) |
+
+Any other number is undefined: some complete, some fail, some hang in SUBMITTED indefinitely. Full list at https://docs.pawapay.io/v2/docs/test_numbers.md. Real mobile money requires production credentials and `PawaPay:BaseUrl` switched off the sandbox host.
+
 6. **Currency**: Always ZMW (Zambian Kwacha), displayed as `K` prefix.
 7. **Date handling**: Store and send all dates as UTC. Frontend receives ISO strings and formats locally.
 8. **Pagination**: Use the `PagedResult<T>` record from `SmartEvents.Shared` (fields: `Items`, `TotalCount`, `Page`, `PageSize`; computed: `TotalPages`, `HasNext`, `HasPrevious`). Angular model is interface `PagedResult<T>` in `event.models.ts` (fields: camelCase).
@@ -193,3 +206,5 @@ SuperAdmin > CompanyAdmin > Organizer > Attendee
 | 2026-06-16 | Added company member management: GET/POST/PUT/DELETE /api/companies/{id}/members endpoints (SuperAdmin+CompanyAdmin only); CompanyMembersComponent at /companies/:id/members; CompanyMembersService; "Manage Members" link in edit-company page. Member removal resets role to Attendee. |
 | 2026-06-26 | Bug fixes + new features: currency display changed from Angular currency pipe (renders $) to manual K prefix + number pipe everywhere. Recommendations changed to AllowAnonymous + category-param based. SuperAdmin can now create events (optional CompanyId in CreateEventRequest + company selector in UI). Added company ownership checks to event/venue edit/delete. Fixed organizer dashboard to use GET /api/events/managed. Added VenueText field on Event entity (EF migration AddVenueText) — custom venue name when no DB venue selected. Added GET /api/notifications (user notification history); NotificationsComponent at /notifications; Bell icon in dashboard nav. |
 | 2026-07-24 | PawaPay sandbox integration: removed Stripe, wired AirtelMoney (AIRTEL_ZAMBIA) + MTNMoMo (MTN_ZAMBIA) via PawaPay HTTP API. New IPawaPayService + PawaPayService (Infrastructure/Services/). EF migration AddPawaPayFields (PawaPayDepositId on Payment). Checkout now creates Pending registration + ticket optimistically, calls PawaPay deposit, returns paymentId. New GET /api/payments/{id}/status polls PawaPay and updates DB. New POST /api/pawapay/webhook for production callbacks. Frontend: phone number field pre-filled from profile, 3 s polling loop (max 40 polls), idle/pending/completed/failed/timeout checkout states. |
+| 2026-09-07 | PawaPay fix — deposits were always rejected. Correspondent codes corrected to the ones this merchant account actually exposes (`AIRTEL_OAPI_ZMB`, `MTN_MOMO_ZMB`; previously `AIRTEL_ZAMBIA`/`MTN_ZAMBIA` → `INVALID_CORRESPONDENT`) in PaymentsController and VenueBookingsController. StatementDescription shortened to "SmartEvents" (PawaPay caps it at 22 chars; "SmartEvents ticket purchase" → `PARAMETER_INVALID`). PawaPayService now throws on `status: REJECTED` — PawaPay returns HTTP 200 for rejections, so initiation silently "succeeded" and the UI polled a non-existent deposit until the 2-minute timeout. PawaPayInitiateResponse gained RejectionReason. |
+| 2026-09-07 | SignalR notifications fix — the JWT bearer setup had no `OnMessageReceived` handler, so the `?access_token=` query param the SignalR client uses for WebSocket/SSE was ignored and every hub connection got 401 (`/hubs/notifications/negotiate?access_token=…` returned 401, header auth returned 200). Added the handler in Program.cs, scoped to paths under `/hubs`. Verified end-to-end: WebSocket client connects and receives the `notification` push. |

@@ -18,9 +18,12 @@ public record PawaPayAddress(string Value);
 // Received from POST /deposits (initiation response)
 public record PawaPayInitiateResponse(
     string DepositId,
-    string Status,
-    string? Created
+    string Status,           // ACCEPTED | REJECTED | DUPLICATE_IGNORED
+    string? Created,
+    PawaPayRejectionReason? RejectionReason
 );
+
+public record PawaPayRejectionReason(string RejectionCode, string RejectionMessage);
 
 // Received from GET /deposits/{id} (status poll — PawaPay returns an array)
 public record PawaPayDepositStatusResponse(
