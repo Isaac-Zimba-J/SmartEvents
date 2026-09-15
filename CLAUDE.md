@@ -44,11 +44,15 @@ SmartEvents/
 │       ├── Hubs/             # NotificationHub (SignalR)
 │       ├── Middleware/       # ExceptionMiddleware
 │       ├── Notifications/    # EmailService, SmsService, NotificationDispatcher, EmailTemplates
+│       ├── Reports/          # ReportModels, IReportRenderer, PdfReportRenderer (QuestPDF), ExcelReportRenderer (ClosedXML)
 │       └── Services/         # TokenService, QrCodeService
 │
 ├── SmartEvents.Shared/       # .NET class library shared between API and future clients
 │   ├── Common/               # ApiResponse<T>, PagedResult<T> records
 │   └── Enums/                # Duplicates of domain enums (EventEnums, UserRole, PaymentEnums, etc.)
+│
+├── SmartEvents.API.Tests/    # xunit — renderer tests only (the API itself needs Postgres; verify endpoints with curl)
+│   └── Reports/
 │
 └── SmartEvents.UI/           # Angular 18 SPA  (port 4200)
     └── src/app/
@@ -191,6 +195,7 @@ Any other number is undefined: some complete, some fail, some hang in SUBMITTED 
 6. **Currency**: Always ZMW (Zambian Kwacha), displayed as `K` prefix.
 7. **Date handling**: Store and send all dates as UTC. Frontend receives ISO strings and formats locally.
 8. **Pagination**: Use the `PagedResult<T>` record from `SmartEvents.Shared` (fields: `Items`, `TotalCount`, `Page`, `PageSize`; computed: `TotalPages`, `HasNext`, `HasPrevious`). Angular model is interface `PagedResult<T>` in `event.models.ts` (fields: camelCase).
+9. **Reports** are generated server-side. `ReportsController` queries EF and builds a record from `Infrastructure/Reports/ReportModels.cs`; an `IReportRenderer` (resolved by `?format=pdf|xlsx`) turns it into bytes. To add a report: add a record + row record to `ReportModels.cs`, add a `Render(...)` overload to `IReportRenderer` and both renderers (they share a private `Build` helper — pass columns and rows, don't duplicate layout), add the endpoint, add a test in `SmartEvents.API.Tests/Reports/`. Never render inside a controller. The CORS policy exposes `Content-Disposition` so the Angular `ReportsService` can name the downloaded file.
 
 ---
 
@@ -208,3 +213,4 @@ Any other number is undefined: some complete, some fail, some hang in SUBMITTED 
 | 2026-07-24 | PawaPay sandbox integration: removed Stripe, wired AirtelMoney (AIRTEL_ZAMBIA) + MTNMoMo (MTN_ZAMBIA) via PawaPay HTTP API. New IPawaPayService + PawaPayService (Infrastructure/Services/). EF migration AddPawaPayFields (PawaPayDepositId on Payment). Checkout now creates Pending registration + ticket optimistically, calls PawaPay deposit, returns paymentId. New GET /api/payments/{id}/status polls PawaPay and updates DB. New POST /api/pawapay/webhook for production callbacks. Frontend: phone number field pre-filled from profile, 3 s polling loop (max 40 polls), idle/pending/completed/failed/timeout checkout states. |
 | 2026-09-07 | PawaPay fix — deposits were always rejected. Correspondent codes corrected to the ones this merchant account actually exposes (`AIRTEL_OAPI_ZMB`, `MTN_MOMO_ZMB`; previously `AIRTEL_ZAMBIA`/`MTN_ZAMBIA` → `INVALID_CORRESPONDENT`) in PaymentsController and VenueBookingsController. StatementDescription shortened to "SmartEvents" (PawaPay caps it at 22 chars; "SmartEvents ticket purchase" → `PARAMETER_INVALID`). PawaPayService now throws on `status: REJECTED` — PawaPay returns HTTP 200 for rejections, so initiation silently "succeeded" and the UI polled a non-existent deposit until the 2-minute timeout. PawaPayInitiateResponse gained RejectionReason. |
 | 2026-09-07 | SignalR notifications fix — the JWT bearer setup had no `OnMessageReceived` handler, so the `?access_token=` query param the SignalR client uses for WebSocket/SSE was ignored and every hub connection got 401 (`/hubs/notifications/negotiate?access_token=…` returned 401, header auth returned 200). Added the handler in Program.cs, scoped to paths under `/hubs`. Verified end-to-end: WebSocket client connects and receives the `notification` push. |
+| 2026-09-15 | Report generation: GET /api/reports/events/{id}/attendees, /events/{id}/sales, /venues/{id}/bookings, each `?format=pdf\|xlsx`. New Infrastructure/Reports/ (models, IReportRenderer, QuestPDF + ClosedXML renderers, registered as singletons). New SmartEvents.API.Tests xunit project (renderer tests). Frontend: ReportsService (blob download, reads Content-Disposition), ReportDownloadComponent (PDF/Excel buttons), placed on organizer attendees page (attendee list + sales; sales hidden for free events) and venue detail (bookings, admins only). Icons file-text, file-spreadsheet, download. CORS now exposes Content-Disposition. |
