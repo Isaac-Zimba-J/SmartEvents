@@ -42,6 +42,19 @@ export class NotificationsComponent implements OnInit {
     });
   }
 
+  // Email bodies are stored as the full HTML template; show readable text instead.
+  preview(n: NotificationRecord): string {
+    const text = n.body
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<br\s*\/?>|<\/p>|<\/div>|<\/h[1-6]>|<\/li>/gi, ' ')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return text.length > 220 ? text.slice(0, 220).trimEnd() + '…' : text;
+  }
+
   eventLabel(event: string): string {
     return event.replace(/([A-Z])/g, ' $1').trim();
   }

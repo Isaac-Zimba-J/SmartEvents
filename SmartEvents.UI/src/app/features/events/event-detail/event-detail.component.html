@@ -42,7 +42,9 @@
         <div class="registration-card">
           <p class="price">{{ event.isTicketed ? 'K ' + (event.ticketPrice | number:'1.0-0') : 'Free' }}</p>
           <p class="spots">
-            @if (isFull && event.waitlistEnabled) {
+            @if (isFull && event.isTicketed) {
+              Sold out
+            } @else if (isFull && event.waitlistEnabled) {
               Event is full — waitlist available
             } @else if (isFull) {
               Event is full
@@ -78,9 +80,10 @@
                 <button
                   class="btn-register"
                   (click)="openCheckout()"
-                  [disabled]="isFull && !event.waitlistEnabled"
+                  [disabled]="isFull"
                 >
-                  Buy Ticket — K {{ event.ticketPrice | number:'1.0-0' }}
+                  @if (isFull) { Sold Out }
+                  @else { Buy Ticket — K {{ event.ticketPrice | number:'1.0-0' }} }
                 </button>
               }
 

@@ -302,7 +302,7 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
     private static EventSummaryResponse ToSummary(Event e) => new(
         e.Id, e.Title, e.Slug, e.Description, e.ImageUrl, e.Category, e.Status,
         e.StartDate, e.EndDate, e.MaxAttendees,
-        e.Registrations.Count(r => r.Status == RegistrationStatus.Confirmed),
+        e.Registrations.Count(r => r.Status is RegistrationStatus.Confirmed or RegistrationStatus.CheckedIn),
         e.IsTicketed, e.TicketPrice, e.WaitlistEnabled, e.IsPublic, e.Tags,
         e.CompanyId, e.Company?.Name ?? string.Empty,
         ToVenueResponse(e.Venue), e.VenueText,
@@ -313,7 +313,7 @@ public class EventsController(SmartEventsDbContext db) : ControllerBase
     private static EventDetailResponse ToDetail(Event e) => new(
         e.Id, e.Title, e.Slug, e.Description, e.ImageUrl, e.Category, e.Status,
         e.StartDate, e.EndDate, e.Timezone, e.MaxAttendees,
-        e.Registrations.Count(r => r.Status == RegistrationStatus.Confirmed),
+        e.Registrations.Count(r => r.Status is RegistrationStatus.Confirmed or RegistrationStatus.CheckedIn),
         e.Registrations.Count(r => r.Status == RegistrationStatus.Waitlisted),
         e.IsTicketed, e.TicketPrice, e.WaitlistEnabled, e.IsPublic, e.Tags,
         e.CompanyId, e.Company?.Name ?? string.Empty,

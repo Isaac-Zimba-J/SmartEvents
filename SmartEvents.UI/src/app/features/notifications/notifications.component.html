@@ -32,7 +32,7 @@
               }
             </div>
             <p class="notif-subject">{{ n.subject }}</p>
-            <p class="notif-message">{{ n.body }}</p>
+            <p class="notif-message">{{ preview(n) }}</p>
             <span class="notif-date">{{ formatDate(n.createdAt) }}</span>
           </div>
         </div>

@@ -49,7 +49,7 @@ export class LandingComponent {
     { icon: 'Ticket', title: 'Ticketing & QR Check-in', description: 'Sell tickets and check attendees in with a single scan — no paper, no queues.' },
     { icon: 'Building2', title: 'Multi-Company Workspaces', description: 'Run events for multiple organizations from one account, each with its own team.' },
     { icon: 'Bell', title: 'Real-Time Notifications', description: 'Attendees and organizers stay in the loop with instant updates, powered by SignalR.' },
-    { icon: 'DollarSign', title: 'Local Payment Methods', description: 'Accept Airtel Money, MTN MoMo, and card payments — priced in Zambian Kwacha.' },
+    { icon: 'Banknote', title: 'Local Payment Methods', description: 'Accept Airtel Money, MTN MoMo, and card payments — priced in Zambian Kwacha.' },
     { icon: 'BookMarked', title: 'Venue Booking', description: 'Browse and book venues directly on the platform, from conference halls to open grounds.' },
     { icon: 'BarChart2', title: 'Analytics Dashboard', description: 'Track registrations, revenue, and attendance trends as they happen.' }
   ];

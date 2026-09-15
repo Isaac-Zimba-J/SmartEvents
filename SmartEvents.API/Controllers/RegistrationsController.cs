@@ -31,7 +31,7 @@ public class RegistrationsController(SmartEventsDbContext db, INotificationDispa
         if (await db.Registrations.AnyAsync(r => r.EventId == request.EventId && r.UserId == userId))
             return Conflict(new { message = "You are already registered for this event." });
 
-        var confirmedCount = ev.Registrations.Count(r => r.Status == RegistrationStatus.Confirmed);
+        var confirmedCount = ev.Registrations.Count(r => r.Status is RegistrationStatus.Confirmed or RegistrationStatus.CheckedIn);
         var isWaitlisted = confirmedCount >= ev.MaxAttendees;
 
         if (isWaitlisted && !ev.WaitlistEnabled)

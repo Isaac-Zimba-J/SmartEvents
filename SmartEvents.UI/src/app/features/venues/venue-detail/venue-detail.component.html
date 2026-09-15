@@ -57,7 +57,7 @@
         <div class="venue-price">
           @if (venue.pricePerDay && venue.pricePerDay > 0) {
             <span class="price-amount">
-              <lucide-angular name="dollar-sign" [size]="18"></lucide-angular>
+              <lucide-angular name="banknote" [size]="18"></lucide-angular>
               K {{ venue.pricePerDay | number:'1.0-0' }} <span class="price-unit">/ day</span>
             </span>
           } @else {

@@ -53,9 +53,12 @@ public class PaymentsController(
         if (await db.Registrations.AnyAsync(r => r.EventId == request.EventId && r.UserId == userId))
             return Conflict(new { message = "You are already registered for this event." });
 
-        var confirmedCount = ev.Registrations.Count(r => r.Status == RegistrationStatus.Confirmed);
-        if (confirmedCount >= ev.MaxAttendees && !ev.WaitlistEnabled)
-            return BadRequest(new { message = "Event is full and waitlist is disabled." });
+        // Paid events have no waitlist: a spot is either bought or it isn't. Pending payments
+        // hold their spot so two people can't buy the last ticket at the same time.
+        var takenCount = ev.Registrations.Count(r =>
+            r.Status is RegistrationStatus.Confirmed or RegistrationStatus.CheckedIn or RegistrationStatus.Pending);
+        if (takenCount >= ev.MaxAttendees)
+            return BadRequest(new { message = "This event is sold out." });
 
         // Optimistic: create registration + ticket as Pending before calling PawaPay
         var registration = new Registration

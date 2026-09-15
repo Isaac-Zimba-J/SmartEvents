@@ -72,7 +72,7 @@ public class AnalyticsController(SmartEventsDbContext db) : ControllerBase
 
         var stats = events.Select(e =>
         {
-            var confirmed = e.Registrations.Count(r => r.Status == RegistrationStatus.Confirmed);
+            var confirmed = e.Registrations.Count(r => r.Status is RegistrationStatus.Confirmed or RegistrationStatus.CheckedIn);
             var waitlisted = e.Registrations.Count(r => r.Status == RegistrationStatus.Waitlisted);
             var checkedIn = e.Registrations.Count(r => r.Status == RegistrationStatus.CheckedIn);
             var cancelled = e.Registrations.Count(r => r.Status == RegistrationStatus.Cancelled);
