@@ -1,0 +1,11 @@
+<div class="report-download">
+  <span class="report-label">{{ label }}</span>
+  <button type="button" class="btn-secondary btn-sm" (click)="run('pdf')" [disabled]="busy !== null">
+    <lucide-angular name="file-text" [size]="14"></lucide-angular>
+    {{ busy === 'pdf' ? 'Preparing…' : 'PDF' }}
+  </button>
+  <button type="button" class="btn-secondary btn-sm" (click)="run('xlsx')" [disabled]="busy !== null">
+    <lucide-angular name="file-spreadsheet" [size]="14"></lucide-angular>
+    {{ busy === 'xlsx' ? 'Preparing…' : 'Excel' }}
+  </button>
+</div>

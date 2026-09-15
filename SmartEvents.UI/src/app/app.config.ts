@@ -8,7 +8,8 @@ import {
   Plus, Pencil, Trash2, ArrowLeft, ArrowRight, Ticket, QrCode,
   Check, X, Shield, Mail, Phone, Globe, Clock,
   Search, ChevronRight, Settings, AlertCircle, CheckCircle,
-  ScanLine, Star, Tag, DollarSign, Briefcase, BookMarked, Bell, Sparkles
+  ScanLine, Star, Tag, DollarSign, Briefcase, BookMarked, Bell, Sparkles,
+  FileText, FileSpreadsheet, Download
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -26,7 +27,8 @@ export const appConfig: ApplicationConfig = {
       Plus, Pencil, Trash2, ArrowLeft, ArrowRight, Ticket, QrCode,
       Check, X, Shield, Mail, Phone, Globe, Clock,
       Search, ChevronRight, Settings, AlertCircle, CheckCircle,
-      ScanLine, Star, Tag, DollarSign, Briefcase, BookMarked, Bell, Sparkles
+      ScanLine, Star, Tag, DollarSign, Briefcase, BookMarked, Bell, Sparkles,
+      FileText, FileSpreadsheet, Download
     }))
   ]
 };
