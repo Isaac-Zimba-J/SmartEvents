@@ -66,6 +66,12 @@
         </div>
       </div>
 
+      @if (authService.isAdmin()) {
+        <div class="report-actions">
+          <app-report-download label="Bookings report" [download]="downloadBookings"></app-report-download>
+        </div>
+      }
+
       <hr class="section-divider" />
 
       <!-- Booking Section -->

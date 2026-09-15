@@ -1335,3 +1335,10 @@ button:not([class]) {
 
 .booking-state-success lucide-angular { color: var(--success); }
 .booking-state-failed  lucide-angular { color: var(--danger); }
+
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin: .75rem 0 1.25rem;
+}

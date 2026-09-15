@@ -11,13 +11,16 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Venue, CreateVenueBookingRequest } from '../../../core/models/venue.models';
 import { PaymentMethod } from '../../../core/models/payment.models';
+import { ReportsService } from '../../../core/services/reports.service';
+import { ReportFormat } from '../../../core/models/report.models';
+import { ReportDownloadComponent } from '../../../core/components/report-download/report-download.component';
 
 type BookingState = 'idle' | 'pending' | 'completed' | 'failed' | 'timeout';
 
 @Component({
   selector: 'app-venue-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, ReportDownloadComponent],
   templateUrl: './venue-detail.component.html',
   styleUrls: ['./venue-detail.component.scss']
 })
@@ -47,12 +50,16 @@ export class VenueDetailComponent implements OnInit, OnDestroy {
     { value: 'Free', label: 'Free / Pay on Arrival' }
   ];
 
+  downloadBookings = (format: ReportFormat) =>
+    this.reportsService.downloadVenueBookings(this.venue!.id, format);
+
   constructor(
     private route: ActivatedRoute,
     private venuesService: VenuesService,
     private venueBookingsService: VenueBookingsService,
     public authService: AuthService,
-    private toast: ToastService
+    private toast: ToastService,
+    private reportsService: ReportsService
   ) {}
 
   ngOnInit(): void {

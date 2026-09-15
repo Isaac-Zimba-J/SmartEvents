@@ -5,6 +5,13 @@
     <a routerLink="/registrations/checkin" class="btn-secondary">Check-In Scanner</a>
   </div>
 
+  <div class="report-actions">
+    <app-report-download label="Attendee list" [download]="downloadAttendees"></app-report-download>
+    @if (showSalesReport) {
+      <app-report-download label="Sales report" [download]="downloadSales"></app-report-download>
+    }
+  </div>
+
   @if (loading) {
     <p>Loading attendees...</p>
   } @else {
