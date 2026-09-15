@@ -8,6 +8,7 @@ using SmartEvents.API.Infrastructure.Data;
 using SmartEvents.API.Infrastructure.Hubs;
 using SmartEvents.API.Infrastructure.Middleware;
 using SmartEvents.API.Infrastructure.Notifications;
+using SmartEvents.API.Infrastructure.Reports;
 using SmartEvents.API.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +26,8 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowCredentials()
+              .WithExposedHeaders("Content-Disposition");
     });
 });
 
@@ -72,6 +74,8 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISmsService, SmsService>();
 builder.Services.AddSingleton<IQrCodeService, QrCodeService>();
+builder.Services.AddSingleton<IReportRenderer, PdfReportRenderer>();
+builder.Services.AddSingleton<IReportRenderer, ExcelReportRenderer>();
 builder.Services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
 
 // HTTP clients
